@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "971659867295",
+    "project_id": "metro-mate",
+    "storage_bucket": "metro-mate.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:971659867295:android:2f7cb13c0beb567344deaa",
+        "android_client_info": {
+          "package_name": "com.example.metro_mate"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "971659867295-9ep1ia43c01tdro60fu8oaikrrtmv5ui.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKt87H3BdnK1373ZY2-j3m7yO3UUalBRk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "971659867295-9ep1ia43c01tdro60fu8oaikrrtmv5ui.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -24,8 +24,8 @@ class _ProfilePageState extends State<ProfilePage> {
               radius: 100,
             ),
             SizedBox(width: 15),
-            ShowField("Name", "Darshan Bhalani", true),
-            ShowField("Phone No", "9909343073", true),
+            ShowField("Name", cuName, true),
+            ShowField("Phone No", cuPhone, true),
             SizedBox(height: 20,),
             InkWell(
               child: Container(

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:metro_mate/FAQandSupportPage.dart';
-import 'package:metro_mate/PrivatePolicyPage.dart';
-import 'package:metro_mate/SelectCityPage.dart';
-import 'package:metro_mate/SettingsPage.dart';
-import 'package:metro_mate/TermsofUsagePage.dart';
+import 'package:metro_mate/MainScreen/Home/FAQandSupportPage.dart';
+import 'package:metro_mate/MainScreen/Home/Drawer/SelectCityPage.dart';
+import 'package:metro_mate/MainScreen/Home/Drawer/TermsofUsagePage.dart';
 import 'package:metro_mate/Variables.dart';
-import 'package:metro_mate/WalletPage.dart';
+import 'package:metro_mate/MainScreen/Home/Drawer/WalletPage.dart';
 
 class DrawerPage extends StatefulWidget {
   const DrawerPage({Key? key}) : super(key: key);
@@ -23,8 +21,8 @@ class _DrawerPageState extends State<DrawerPage> {
           Container(
             color: SecondryColor,
             height: 180,
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
+            child: const Padding(
+              padding: EdgeInsets.all(10.0),
               child: Row(
                 children: [
                   CircleAvatar(
@@ -52,35 +50,34 @@ class _DrawerPageState extends State<DrawerPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => WalletPage(),
+                    builder: (context) => const WalletPage(),
                   ));
             },
-            child: ListTile(
+            child: const ListTile(
               leading: Icon(Icons.account_balance_wallet),
               title: Text("Wallet"),
               trailing: Text("₹ 0.0"),
             ),
           ),
           Box("Change City", Icons.pin_drop_outlined,SelectCityPage(currentCity: selectedCity.toString(),)),
-          Box("Private Policy", Icons.article_outlined,PrivatePolicyPage()),
-          Box("Terms of Usage", Icons.file_copy_rounded,TermsofUsagePage()),
-          Box("FAQs & Support", Icons.info_outlined,FAQandSupportPage()),
+          Box("Terms of Usage", Icons.article_outlined,const TermsofUsagePage()),
+          Box("FAQs & Support", Icons.info_outlined,const FAQandSupportPage()),
         ],
       ),
     );
   }
-  Box(String _titile,IconData _icon,_nextPage){
+  Box(String titile,IconData icon,nextPage){
     return InkWell(
       onTap: (){
         Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => _nextPage,
+              builder: (context) => nextPage,
             ));
       },
       child: ListTile(
-        leading: Icon(_icon),
-        title: Text(_titile),
+        leading: Icon(icon),
+        title: Text(titile),
       ),
     );
   }

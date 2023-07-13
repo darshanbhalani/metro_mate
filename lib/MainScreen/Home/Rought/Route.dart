@@ -37,9 +37,9 @@ class _RoutePageState extends State<RoutePage> {
                               Container(
                                 height: 60,
                                 width: 6,
-                                color: PrimaryColor,
+                                color: LineColor[C[S.indexOf("${widget.list[index]}")]],
                               ),
-                              Center(child: Icon(Icons.circle,color:PrimaryColor,))
+                              Center(child: Icon(Icons.circle,color:LineColor[C[S.indexOf("${widget.list[index]}")]]))
                             ],
                           ),
                           SizedBox(width: 25,),

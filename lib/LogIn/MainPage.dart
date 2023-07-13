@@ -1,7 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:metro_mate/LoginPage.dart';
-import 'package:metro_mate/SignUpPage.dart';
+import 'package:metro_mate/MainScreen/Home/HomePage.dart';
+import 'package:metro_mate/LogIn/LoginPage.dart';
+import 'package:metro_mate/LogIn/SignUpPage.dart';
 import 'package:metro_mate/Variables.dart';
 
 class MainPage extends StatefulWidget {
@@ -20,7 +21,7 @@ class _MainPageState extends State<MainPage> {
         children: [
           Positioned(
               bottom: -20,
-              child: Container(
+              child: SizedBox(
                   width: MediaQuery.of(context).size.width,
                   child: Image.asset('assets/images/Train.png'))),
           Positioned(
@@ -29,7 +30,7 @@ class _MainPageState extends State<MainPage> {
             child: Container(
               height: 300,
               width: 300,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                   color: Color.fromARGB(75, 255, 114, 94),
                   shape: BoxShape.circle
               ),
@@ -41,7 +42,7 @@ class _MainPageState extends State<MainPage> {
             child: Container(
               height: 150,
               width: 150,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                   color: Color.fromARGB(75, 255, 114, 94),
                   shape: BoxShape.circle
               ),
@@ -53,7 +54,7 @@ class _MainPageState extends State<MainPage> {
             child: Container(
               height: 150,
               width: 150,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                   color: Color.fromARGB(75, 255, 114, 94),
                   shape: BoxShape.circle
               ),
@@ -65,7 +66,7 @@ class _MainPageState extends State<MainPage> {
             child: Container(
               height: 150,
               width: 150,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                   color: Color.fromARGB(75, 255, 114, 94),
                   shape: BoxShape.circle
               ),
@@ -76,14 +77,19 @@ class _MainPageState extends State<MainPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Center(child: Text("WELCOME",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 40),)),
-                SizedBox(height: 35,),
+                const Center(child: Text("WELCOME",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 50),)),
+                const SizedBox(height: 100,),
                 InkWell(
-                  onTap: (){
+                  onTap: () async {
+                    // Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(
+                    //       builder: (context) => const HomePage(),
+                    //     ));
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => LoginPage(),
+                          builder: (context) => const LoginPage(),
                         ));
                   },
                   child: Container(
@@ -93,22 +99,22 @@ class _MainPageState extends State<MainPage> {
                         color: PrimaryColor,
                         borderRadius: BorderRadius.circular(5)
                     ),
-                    child: Center(child: Text("Log In",style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold,color: Colors.white),)),
+                    child: const Center(child: Text("Log In",style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold,color: Colors.white),)),
                   ),
                 ),
-                SizedBox(height: 15,),
+                const SizedBox(height: 15,),
                 RichText(
                   text: TextSpan(
-                    style: TextStyle(color: Colors.black, fontSize: 36),
+                    style: const TextStyle(color: Colors.black, fontSize: 36),
                     children: <TextSpan>[
-                      TextSpan(text: "New Member ? "),
+                      const TextSpan(text: "New Member ? "),
                       TextSpan(
                           text: "Click here",style: TextStyle(color: PrimaryColor),
                           recognizer:TapGestureRecognizer()..onTap = (){
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => SignUpPage(),
+                                  builder: (context) => const SignUpPage(),
                                 ));
                           }
                       ),
@@ -116,7 +122,7 @@ class _MainPageState extends State<MainPage> {
                   ),
                   textScaleFactor: 0.4,
                 ),
-                SizedBox(height: 35,),
+                const SizedBox(height: 35,),
               ],
             ),
           ),

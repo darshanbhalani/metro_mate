@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:metro_mate/BookingsPage.dart';
-import 'package:metro_mate/DrawerPage.dart';
-import 'package:metro_mate/MetroMapPage.dart';
-import 'package:metro_mate/ProfilePage.dart';
-import 'package:metro_mate/RechareMetroCardPage.dart';
-import 'package:metro_mate/RoughtPage.dart';
-import 'package:metro_mate/StationsListPage.dart';
-import 'package:metro_mate/TicketBookingPage.dart';
+import 'package:metro_mate/MainScreen/Bookings/BookingsPage.dart';
+import 'package:metro_mate/MainScreen/Home/DrawerPage.dart';
+import 'package:metro_mate/MainScreen/Home/FindNearestStation/FindNearestStationPage.dart';
+import 'package:metro_mate/MainScreen/Home/MetroMap/MetroMapPage.dart';
+import 'package:metro_mate/MainScreen/Profile/ProfilePage.dart';
+import 'package:metro_mate/MainScreen/Home/RechargeMetroCard/RechareMetroCardPage.dart';
+import 'package:metro_mate/MainScreen/Home/Rought/RoughtPage.dart';
+import 'package:metro_mate/MainScreen/Home/StationsList/StationsListPage.dart';
+import 'package:metro_mate/MainScreen/Home/TicketBooking/TicketBookingPage.dart';
 import 'package:metro_mate/Variables.dart';
 
 class HomePage extends StatefulWidget {
@@ -93,7 +94,7 @@ class _HomePageState extends State<HomePage> {
                                 mainAxisAlignment: MainAxisAlignment
                                     .spaceBetween,
                                 children: [
-                                  Text("Hi, Darshan", style: TextStyle(
+                                  Text("Hi, ${cuFName}", style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,
                                       fontSize: 26),),
@@ -195,23 +196,32 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
-                    Container(
-                      height: 90,
-                      width: 90,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(25),
-                        color: Colors.grey[200],
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.near_me, color: PrimaryColor,),
-                          Text("Find Nerest", style: TextStyle(
-                              color: PrimaryColor),),
-                          Text("Station", style: TextStyle(
-                              color: PrimaryColor),)
-                        ],
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => FindNearestStationPage(),
+                            ));
+                      },
+                      child: Container(
+                        height: 90,
+                        width: 90,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(25),
+                          color: Colors.grey[200],
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.near_me, color: PrimaryColor,),
+                            Text("Find Nerest", style: TextStyle(
+                                color: PrimaryColor),),
+                            Text("Station", style: TextStyle(
+                                color: PrimaryColor),)
+                          ],
+                        ),
                       ),
                     ),
                   ],

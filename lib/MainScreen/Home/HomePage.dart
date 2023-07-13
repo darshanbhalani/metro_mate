@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:metro_mate/MainScreen/Bookings/BookingsPage.dart';
-import 'package:metro_mate/MainScreen/Home/DrawerPage.dart';
+import 'package:metro_mate/MainScreen/Home/Drawer/DrawerPage.dart';
 import 'package:metro_mate/MainScreen/Home/FindNearestStation/FindNearestStationPage.dart';
 import 'package:metro_mate/MainScreen/Home/MetroMap/MetroMapPage.dart';
 import 'package:metro_mate/MainScreen/Profile/ProfilePage.dart';

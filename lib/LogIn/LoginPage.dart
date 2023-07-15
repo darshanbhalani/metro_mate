@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:metro_mate/MainScreen/Home/HomePage.dart';
-import 'package:metro_mate/LogIn/OTPVarificationPage.dart';
 import 'package:metro_mate/Variables.dart';
 
 class LoginPage extends StatefulWidget {
@@ -95,10 +93,10 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       Visibility(
                           visible: flag,
-                          child: Text("User Not Exists. Please try to SignUp !!",style: TextStyle(color: Colors.red,fontSize: 15),)),
+                          child: const Text("User Not Exists. Please try to SignUp !!",style: TextStyle(color: Colors.red,fontSize: 15),)),
                       Visibility(
                           visible: flag,
-                          child: SizedBox(height: 15,)),
+                          child: const SizedBox(height: 15,)),
                       TFormField(
                           context, "Enter Phone No.", controller, true, false),
                       const SizedBox(
@@ -125,14 +123,7 @@ class _LoginPageState extends State<LoginPage> {
                 var snapShot = await fire.collection("Users").doc(controller.text.toString()).get();
                 if(snapShot.exists){
                   await getUserData(controller.text.toString());
-                  await setDetails();
-                  Navigator.pop(context);
-                  // await SendOTP(context,controller.text.toString());
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => HomePage()
-                      ));
+                  await SendOTP(context,controller.text.toString());
                 }else{
                   flag=true;
                   setState(() {

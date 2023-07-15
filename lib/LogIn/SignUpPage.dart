@@ -109,19 +109,18 @@ class _SignUpPageState extends State<SignUpPage> {
       bottomSheet: InkWell(
         onTap: () async {
           if(_key.currentState!.validate()){
-            Loading(context);
+            // Loading(context);
             var snapShot = await fire.collection("Users").doc(controller3.text.toString()).get();
             if(!snapShot.exists){
-              // await SendOTP(context, controller3.text.toString());
-              await SignUp(controller1.text.toString(), controller2.text.toString(), controller3.text.toString());
-              await getUserData(controller3.text.toString());
-              await setDetails();
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => HomePage()),
-              );
+              await SendOTP(context, controller3.text.toString());
+              // await SignUp(controller1.text.toString(), controller2.text.toString(), controller3.text.toString());
+              // await getUserData(controller3.text.toString());
+              // Navigator.pop(context);
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+              //       builder: (context) => HomePage()),
+              // );
               // Navigator.push(
               //     context,
               //     MaterialPageRoute(

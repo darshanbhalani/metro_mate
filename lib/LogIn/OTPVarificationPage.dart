@@ -207,7 +207,6 @@ class _OTPVarificationPageState extends State<OTPVarificationPage> {
               _hintText = "";
             });
           },
-          onSaved: (pin1) {},
         ),
       ),
     );

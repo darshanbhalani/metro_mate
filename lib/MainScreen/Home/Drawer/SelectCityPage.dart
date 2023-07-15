@@ -1,7 +1,8 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:metro_mate/MainScreen/Home/HomePage.dart';
 import 'package:metro_mate/Variables.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SelectCityPage extends StatefulWidget {
   final String currentCity;
@@ -72,19 +73,19 @@ class _SelectCityPageState extends State<SelectCityPage> {
         }),
       bottomSheet: InkWell(
         onTap: () async {
+          Loading(context);
           if(temp != widget.currentCity){
             selectedCity=temp;
-            SharedPreferences sp = await SharedPreferences.getInstance();
-            sp.setString("cuFName", cuFName);
-            setState(() {
-            });
+            setState(() {});
+              await buildDataBase(selectedCity);
+              await setDetails(cuFName, cuLName, cuPhone, cuPhone, selectedCity);
           }
-          // Navigator.pop(context);
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => HomePage(),
-              ));
+          Navigator.pop(context);
+          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+            builder: (context) => HomePage(),
+          ), (route) => false);
+          Navigator.push(context, MaterialPageRoute(
+              builder: (context) => HomePage()));
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),

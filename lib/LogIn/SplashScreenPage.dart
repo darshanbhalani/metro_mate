@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:metro_mate/LogIn/MainPage.dart';
+import 'package:metro_mate/MainScreen/Home/HomePage.dart';
+import 'package:metro_mate/Variables.dart';
 
 class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
@@ -15,18 +19,27 @@ class _SplashScreenState extends State<SplashScreen>
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: Duration(seconds: 2),
+      duration: const Duration(seconds: 2),
     );
     _animationController!.forward();
-    _animationController!.addStatusListener((status) {
+    _animationController!.addStatusListener((status) async {
       if (status == AnimationStatus.completed) {
-        // Animation has completed, navigate to the main screen
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (BuildContext context) => MainPage(),
-          ),
-        );
+        if(auth.currentUser == null){
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (BuildContext context) => MainPage(),
+            ),
+          );
+        }else{
+          await getLocalDetails();
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const HomePage(),
+              ));
+        }
+
       }
     });
   }
@@ -51,23 +64,25 @@ class _SplashScreenState extends State<SplashScreen>
           ),
         );
       },
-      child: YourSplashScreenContent(), // Replace with your own splash screen content
+      child: const YourSplashScreenContent(), // Replace with your own splash screen content
     );
   }
 }
 
 class YourSplashScreenContent extends StatelessWidget {
+  const YourSplashScreenContent({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
+          SizedBox(
               height: MediaQuery.of(context).size.height * 0.7,
               width: MediaQuery.of(context).size.width * 0.7,
               child: Image.asset('assets/images/Splash.png')),
-          SizedBox(height: 30,)
+          const SizedBox(height: 30,)
         ],
       ),
     );

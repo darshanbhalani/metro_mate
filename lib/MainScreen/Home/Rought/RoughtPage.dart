@@ -22,7 +22,7 @@ class _RoughtPageState extends State<RoughtPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: PrimaryColor,
-        title: Text("Search Rought"),
+        title: const Text("Search Rought"),
       ),
       body: Form(
         key: _formkey,
@@ -31,30 +31,31 @@ class _RoughtPageState extends State<RoughtPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              DropField(context, "Source", Stations, _controller1, true),
-              DropField(context, "Destination", Stations, _controller2, true),
+              DropField(
+                  context, "Source", metroStationsList, _controller1, true),
+              DropField(context, "Destination", metroStationsList, _controller2, true),
             ],
           ),
         ),
       ),
       bottomSheet: InkWell(
-        onTap: (){
-         Loading(context);
-          Graph graph = Graph();
-          List<String>? path = graph.bfs(_controller1.dropDownValue!.value.toString(), _controller2.dropDownValue!.value.toString());
-          Navigator.pop(context);
-         if (path != null) {
-            List route = path;
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => RoutePage(start:_controller1.dropDownValue!.value.toString(),end:_controller2.dropDownValue!.value.toString(),list: route,),
-                ));
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text("Source and Destination both are Same !"),
-            ));
-          }
+        onTap: () async {
+          Loading(context);
+           Graph graph = Graph();
+           List<String>? path = graph.bfs(_controller1.dropDownValue!.value.toString(), _controller2.dropDownValue!.value.toString());
+           Navigator.pop(context);
+          if (path != null) {
+             List route = path;
+             Navigator.push(
+                 context,
+                 MaterialPageRoute(
+                   builder: (context) => RoutePage(start:_controller1.dropDownValue!.value.toString(),end:_controller2.dropDownValue!.value.toString(),list: route,),
+                 ));
+           } else {
+             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+               content: Text("Source and Destination both are Same !"),
+             ));
+           }
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -64,13 +65,17 @@ class _RoughtPageState extends State<RoughtPage> {
               borderRadius: BorderRadius.circular(5),
               color: PrimaryColor,
             ),
-            child: Center(child: Text("Search",style: TextStyle(fontSize:20,color: Colors.white),)),
+            child: const Center(
+                child: Text(
+              "Search",
+              style: TextStyle(fontSize: 20, color: Colors.white),
+            )),
           ),
         ),
       ),
     );
-
   }
+
   DropField(context, String lable, List<DropDownValueModel> items,
       SingleValueDropDownController controller, bool condition) {
     return Column(
@@ -84,8 +89,7 @@ class _RoughtPageState extends State<RoughtPage> {
             }
             return null;
           },
-          onChanged: (value) async {
-          },
+          onChanged: (value) async {},
           controller: controller,
           dropDownItemCount: 5,
           dropDownList: items,
@@ -118,8 +122,3 @@ class _RoughtPageState extends State<RoughtPage> {
     );
   }
 }
-
-
-
-
-

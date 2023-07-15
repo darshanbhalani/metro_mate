@@ -1,8 +1,9 @@
+import 'dart:convert';
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_textfield/dropdown_textfield.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:metro_mate/MainScreen/Home/HomePage.dart';
@@ -12,47 +13,55 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 FirebaseAuth auth = FirebaseAuth.instance;
 FirebaseFirestore fire = FirebaseFirestore.instance;
+FirebaseDatabase ref = FirebaseDatabase.instance;
 
-Color PrimaryColor = Color.fromARGB(255, 255, 114, 94);
-Color SecondryColor = Color.fromARGB(150, 255, 114, 94);
+Color PrimaryColor = const Color.fromARGB(255, 255, 114, 94);
+Color SecondryColor = const Color.fromARGB(150, 255, 114, 94);
 
 String selectedCity = "";
 String cuFName = "";
 String cuLName = "";
-String cuName = "";
 String cuPhone = "";
 String cuPhoto = "";
 List cardList=[];
+List<DropDownValueModel> metroStationsList = [];
+Map<String, Set<String>> metroGraph = {};
+List stationList=[];
+List fareMatrix=[];
+Map<String,Color> stationLineColor= {};
 
-ShowField(String _lable, String _value, bool _flag) {
+
+
+
+ShowField(String lable, String value, bool flag) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(_lable,
-          style: TextStyle(
+      Text(lable,
+          style: const TextStyle(
             fontSize: 15,
           )),
       const SizedBox(
         height: 5,
       ),
       TextFormField(
-        enabled: _flag,
+        enabled: flag,
         decoration: InputDecoration(
-          border: OutlineInputBorder(
+          border: const OutlineInputBorder(
               borderSide: BorderSide(
             color: Colors.teal,
           )),
-          focusedBorder: OutlineInputBorder(
+          focusedBorder: const OutlineInputBorder(
               borderSide: BorderSide(
             color: Colors.orange,
             width: 3,
           )),
-          labelText: _value,
-          labelStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          hintStyle: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+          labelText: value,
+          labelStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          hintStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
         ),
       ),
-      SizedBox(
+      const SizedBox(
         height: 20,
       ),
     ],
@@ -60,34 +69,34 @@ ShowField(String _lable, String _value, bool _flag) {
 }
 
 List<DropDownValueModel> Numbers = [
-  DropDownValueModel(name: "1", value: 1),
-  DropDownValueModel(name: "2", value: 2),
-  DropDownValueModel(name: "3", value: 3),
-  DropDownValueModel(name: "4", value: 4),
-  DropDownValueModel(name: "5", value: 5),
-  DropDownValueModel(name: "6", value: 6),
+  const DropDownValueModel(name: "1", value: 1),
+  const DropDownValueModel(name: "2", value: 2),
+  const DropDownValueModel(name: "3", value: 3),
+  const DropDownValueModel(name: "4", value: 4),
+  const DropDownValueModel(name: "5", value: 5),
+  const DropDownValueModel(name: "6", value: 6),
 ];
 
-TFormField(context, String _lable, TextEditingController _controller,
-    bool _condition, bool _flag) {
+TFormField(context, String lable, TextEditingController controller,
+    bool condition, bool flag) {
   return Column(
     children: [
       TextFormField(
-          obscureText: _flag,
-          enabled: _condition,
+          obscureText: flag,
+          enabled: condition,
           validator: (value) {
-            if (_controller.text.length != 10) {
-              return "Enter $_lable";
+            if (controller.text.length != 10) {
+              return "Enter $lable";
             }
             return null;
           },
-          controller: _controller,
+          controller: controller,
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
-            disabledBorder: OutlineInputBorder(
+            disabledBorder: const OutlineInputBorder(
               borderSide: BorderSide(color: Colors.grey),
             ),
-            border: OutlineInputBorder(
+            border: const OutlineInputBorder(
                 borderSide: BorderSide(
               color: Colors.teal,
             )),
@@ -99,8 +108,8 @@ TFormField(context, String _lable, TextEditingController _controller,
             enabledBorder: const OutlineInputBorder(
               borderSide: BorderSide(color: Colors.grey),
             ),
-            labelText: _lable,
-            labelStyle: TextStyle(
+            labelText: lable,
+            labelStyle: const TextStyle(
               fontSize: 15,
             ),
           ),
@@ -113,1352 +122,17 @@ TFormField(context, String _lable, TextEditingController _controller,
               FocusScope.of(context).nextFocus();
             }
           }),
-      SizedBox(height: 15),
+      const SizedBox(height: 15),
     ],
   );
 }
-
-List<DropDownValueModel> Stations = [
-  DropDownValueModel(name: "APMC", value: "APMC"),
-  DropDownValueModel(name: "Jivrajpark", value: "Jivrajpark"),
-  DropDownValueModel(name: "Rajivnagar", value: "Rajivnagar"),
-  DropDownValueModel(name: "Shreyas", value: "Shreyas"),
-  DropDownValueModel(name: "Paldi", value: "Paldi"),
-  DropDownValueModel(name: "Gandhigram", value: "Gandhigram"),
-  DropDownValueModel(name: "Old High Court 1", value: "Old High Court 1"),
-  DropDownValueModel(name: "Usmanpura", value: "Usmanpura"),
-  DropDownValueModel(name: "Vijaynagar", value: "Vijaynagar"),
-  DropDownValueModel(name: "Vadaj", value: "Vadaj"),
-  DropDownValueModel(name: "Ranip", value: "Ranip"),
-  DropDownValueModel(
-      name: "Sabarmati Railway Station", value: "Sabarmati Railway Station"),
-  DropDownValueModel(name: "AEC", value: "AEC"),
-  DropDownValueModel(name: "Sabarmati", value: "Sabarmati"),
-  DropDownValueModel(name: "Motera Stadium", value: "Motera Stadium"),
-  DropDownValueModel(name: "Thaltej Gam", value: "Thaltej Gam"),
-  DropDownValueModel(name: "Thaltej", value: "Thaltej"),
-  DropDownValueModel(name: "Doordarshankendra", value: "Doordarshankendra"),
-  DropDownValueModel(name: "Gurukul Road", value: "Gurukul Road"),
-  DropDownValueModel(name: "Gujarta University", value: "Gujarta University"),
-  DropDownValueModel(name: "Commerce Six Road", value: "Commerce Six Road"),
-  DropDownValueModel(name: "SP Stadium", value: "SP Stadium"),
-  DropDownValueModel(name: "Shahpur", value: "Shahpur"),
-  DropDownValueModel(name: "Gheekanta", value: "Gheekanta"),
-  DropDownValueModel(
-      name: "Kalupur Metro Station", value: "Kalupur Metro Station"),
-  DropDownValueModel(name: "Kankaria East", value: "Kankaria East"),
-  DropDownValueModel(name: "Apperel Park", value: "Apperel Park"),
-  DropDownValueModel(name: "Amraivadi", value: "Amraivadi"),
-  DropDownValueModel(name: "Rabari Colony", value: "Rabari Colony"),
-  DropDownValueModel(name: "Vastral", value: "Vastral"),
-  DropDownValueModel(name: "Nirant Cross Road", value: "Nirant Cross Road"),
-  DropDownValueModel(name: "Vastral Gam", value: "Vastral Gam")
-];
-
-List Price = [
-  [
-    '#',
-    'APMC',
-    'Jivrajpark',
-    'Rajivnagar',
-    'Shreyas',
-    'Paldi',
-    'Gandhigram',
-    'Old High Court 1',
-    'Usmanpura',
-    'Vijaynagar',
-    'Vadaj',
-    'Ranip',
-    'Sabarmati Railway Station',
-    'AEC',
-    'Sabarmati',
-    'Motera Stadium',
-    'Thaltej Gam',
-    'Thaltej',
-    'Doordarshankendra',
-    'Gurukul Road',
-    'Gujarta University',
-    'Commerce Six Road',
-    'SP Stadium',
-    'Old High Court 2',
-    'Shahpur',
-    'Gheekanta',
-    'Kalupur Metro Station',
-    'Kankaria East',
-    'Apperel Park',
-    'Amraivadi',
-    'Rabari Colony',
-    'Vastral',
-    'Nirant Cross Road',
-    'Vastral Gam'
-  ],
-  [
-    'APMC',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '20',
-    '20',
-    '20',
-    '20',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '10',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '20',
-    '20',
-    '25',
-    '25',
-    '25'
-  ],
-  [
-    'Jivrajpark',
-    '5',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '20',
-    '20',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '20',
-    '20',
-    '20',
-    '25',
-    '25'
-  ],
-  [
-    'Rajivnagar',
-    '5',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '20',
-    '20',
-    '25',
-    '25'
-  ],
-  [
-    'Shreyas',
-    '10',
-    '5',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '20',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '20',
-    '20',
-    '20'
-  ],
-  [
-    'Paldi',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '5',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '20'
-  ],
-  [
-    'Gandhigram',
-    '10',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20'
-  ],
-  [
-    'Old High Court 1',
-    '10',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '20'
-  ],
-  [
-    'Usmanpura',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20'
-  ],
-  [
-    'Vijaynagar',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '5',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '20'
-  ],
-  [
-    'Vadaj',
-    '15',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '20',
-    '20',
-    '20'
-  ],
-  [
-    'Ranip',
-    '15',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '20',
-    '20',
-    '20',
-    '25'
-  ],
-  [
-    'Sabarmati Railway Station',
-    '20',
-    '15',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5',
-    '5',
-    '5',
-    '10',
-    '20',
-    '15',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '20',
-    '20',
-    '25',
-    '25'
-  ],
-  [
-    'AEC',
-    '20',
-    '20',
-    '15',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5',
-    '5',
-    '10',
-    '20',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '20',
-    '20',
-    '25',
-    '25',
-    '25'
-  ],
-  [
-    'Sabarmati',
-    '20',
-    '20',
-    '20',
-    '15',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5',
-    '5',
-    '20',
-    '20',
-    '20',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '20',
-    '25',
-    '25',
-    '25',
-    '25',
-    '25'
-  ],
-  [
-    'Motera Stadium',
-    '20',
-    '20',
-    '20',
-    '20',
-    '15',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '20',
-    '20',
-    '20',
-    '20',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '20',
-    '25',
-    '25',
-    '25',
-    '25',
-    '25',
-    '25'
-  ],
-  [
-    'Thaltej Gam',
-    '20',
-    '20',
-    '15',
-    '15',
-    '15',
-    '15',
-    '10',
-    '15',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '20',
-    '20',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '20',
-    '20',
-    '25',
-    '25',
-    '25'
-  ],
-  [
-    'Thaltej',
-    '20',
-    '15',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '5',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '20',
-    '20',
-    '25',
-    '25'
-  ],
-  [
-    'Doordarshankendra',
-    '15',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '5',
-    '5',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '20',
-    '20',
-    '20',
-    '25'
-  ],
-  [
-    'Gurukul Road',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '15',
-    '20',
-    '10',
-    '5',
-    '5',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '20',
-    '20',
-    '20'
-  ],
-  [
-    'Gujarta University',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '20',
-    '20'
-  ],
-  [
-    'Commerce Six Road',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '20'
-  ],
-  [
-    'SP Stadium',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20'
-  ],
-  [
-    'Old High Court 2',
-    '10',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '20'
-  ],
-  [
-    'Shahpur',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15'
-  ],
-  [
-    'Gheekanta',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '15',
-    '20',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15'
-  ],
-  [
-    'Kalupur Metro Station',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10',
-    '15'
-  ],
-  [
-    'Kankaria East',
-    '20',
-    '20',
-    '15',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '15',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '20',
-    '20',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10',
-    '10',
-    '10'
-  ],
-  [
-    'Apperel Park',
-    '20',
-    '20',
-    '20',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '20',
-    '20',
-    '25',
-    '20',
-    '20',
-    '20',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10',
-    '10'
-  ],
-  [
-    'Amraivadi',
-    '20',
-    '20',
-    '20',
-    '20',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '20',
-    '20',
-    '25',
-    '25',
-    '20',
-    '20',
-    '20',
-    '20',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5',
-    '5',
-    '10',
-    '10'
-  ],
-  [
-    'Rabari Colony',
-    '20',
-    '20',
-    '20',
-    '20',
-    '15',
-    '15',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '20',
-    '20',
-    '25',
-    '25',
-    '20',
-    '20',
-    '20',
-    '20',
-    '20',
-    '15',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5',
-    '5',
-    '5',
-    '10'
-  ],
-  [
-    'Vastral',
-    '25',
-    '20',
-    '20',
-    '20',
-    '20',
-    '15',
-    '15',
-    '15',
-    '20',
-    '20',
-    '20',
-    '20',
-    '20',
-    '25',
-    '25',
-    '25',
-    '20',
-    '20',
-    '20',
-    '20',
-    '20',
-    '15',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5',
-    '5',
-    '5'
-  ],
-  [
-    'Nirant Cross Road',
-    '25',
-    '25',
-    '25',
-    '20',
-    '20',
-    '20',
-    '15',
-    '20',
-    '20',
-    '20',
-    '20',
-    '25',
-    '25',
-    '25',
-    '25',
-    '25',
-    '25',
-    '20',
-    '20',
-    '20',
-    '20',
-    '20',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5',
-    '5'
-  ],
-  [
-    'Vastral Gam',
-    '25',
-    '25',
-    '25',
-    '20',
-    '20',
-    '20',
-    '20',
-    '20',
-    '20',
-    '20',
-    '25',
-    '25',
-    '25',
-    '25',
-    '25',
-    '25',
-    '25',
-    '25',
-    '20',
-    '20',
-    '20',
-    '20',
-    '20',
-    '15',
-    '15',
-    '15',
-    '10',
-    '10',
-    '10',
-    '10',
-    '5',
-    '5',
-    '5'
-  ]
-];
-List S = [
-  'APMC',
-  'Jivrajpark',
-  'Rajivnagar',
-  'Shreyas',
-  'Paldi',
-  'Gandhigram',
-  'Old High Court 1',
-  'Usmanpura',
-  'Vijaynagar',
-  'Vadaj',
-  'Ranip',
-  'Sabarmati Railway Station',
-  'AEC',
-  'Sabarmati',
-  'Motera Stadium',
-  'Thaltej Gam',
-  'Thaltej',
-  'Doordarshankendra',
-  'Gurukul Road',
-  'Gujarta University',
-  'Commerce Six Roads',
-  'SP Stadium',
-  'Shahpur',
-  'Gheekanta',
-  'Kalupur Metro Station',
-  'Kankaria East',
-  'Apperel Park',
-  'Amraivadi',
-  'Rabari Colony',
-  'Vastral',
-  'Nirant Cross Road',
-  'Vastral Gam'
-];
-List C = [
-  "Red",
-  "Red",
-  "Red",
-  "Red",
-  "Red",
-  "Red",
-  "Red",
-  "Red",
-  "Red",
-  "Red",
-  "Red",
-  "Red",
-  "Red",
-  "Red",
-  "Red",
-  "Blue",
-  "Blue",
-  "Blue",
-  "Blue",
-  "Blue",
-  "Blue",
-  "Blue",
-  "Blue",
-  "Blue",
-  "Blue",
-  "Blue",
-  "Blue",
-  "Blue",
-  "Blue",
-  "Blue",
-  "Blue",
-  "Blue",
-  "Blue",
-];
 
 Loading(context) {
   return showDialog(
       barrierDismissible: false,
       context: context,
       builder: (context) {
-        return Container(
-            child:
-                Center(child: CircularProgressIndicator(color: PrimaryColor)));
+        return Center(child: CircularProgressIndicator(color: PrimaryColor));
       });
 }
 
@@ -1481,47 +155,11 @@ List Cities = [
   "Pune"
 ];
 
-var graph = {
-  'Gyaspur Depot': {'APMC'},
-  'APMC': {'Gyaspur Depot', 'Jivraj'},
-  'Jivraj': {'APMC', 'Rajivnagar'},
-  'Rajivnagar': {'Jivraj', 'Shreyas'},
-  'Shreyas': {'Rajivnagar', 'Paldi'},
-  'Paldi': {'Shreyas', 'Gandhigram'},
-  'Gandhigram': {'Paldi', 'Old High Court'},
-  'Old High Court': {'Gandhigram', 'Usmanpura', 'Stadium', 'Sahpur'},
-  'Usmanpura': {'Old High Court', 'Vijaynagar'},
-  'Vijaynagar': {'Usmanpura', 'Vadaj'},
-  'Vadaj': {'Vijaynagar', 'Ranip'},
-  'Ranip': {'Vadaj', 'Sabarmati Railway Station'},
-  'Sabarmati Railway Station': {'Ranip', 'AEC'},
-  'AEC': {'Sabarmati Railway Station', 'Sabarmati'},
-  'Sabarmati': {'AEC', 'Motera Stadium'},
-  'Motera Stadium': {'Sabarmati'},
-  'Stadium': {'Old High Court', 'Commerce Six Roads'},
-  'Commerce Six Roads': {'Stadium', 'Gujarat University'},
-  'Gujarat University': {'Commerce Six Roads', 'Gurukul Road'},
-  'Gurukul Road': {'Gujarat University', 'Doordarshankendra'},
-  'Doordarshankendra': {'Gurukul Road', 'Thaltej'},
-  'Thaltej': {'Doordarshankendra', 'Thaltej Gam'},
-  'Thaltej Gam': {'Thaltej'},
-  'Sahpur': {'Old High Court', 'Gheekanta'},
-  'Gheekanta': {'Sahpur', 'Kalupur Railway Station'},
-  'Kalupur Railway Station': {'Gheekanta', 'Kankaria East'},
-  'Kankaria East': {'Kalupur Railway Station', 'Apparel Park'},
-  'Apparel Park': {'Kankaria East', 'Amraivadi'},
-  'Amraivadi': {'Apparel Park', 'Rabari Colony'},
-  'Rabari Colony': {'Amraivadi', 'Vastral'},
-  'Vastral': {'Rabari Colony', 'Nirant Cross Road'},
-  'Nirant Cross Road': {'Vastral', 'Vastral Gam'},
-  'Vastral Gam': {'Nirant Cross Road'}
-};
 
-SendOTP(context, String _pnone) async {
-  Loading(context);
+SendOTP(context, String pnone) async {
   await auth
       .verifyPhoneNumber(
-        phoneNumber: '+91 ${_pnone}',
+        phoneNumber: '+91 $pnone',
         codeSent: (String verificationId, int? resendToken) async {
           verificationId = verificationId;
           Navigator.pop(context);
@@ -1529,11 +167,12 @@ SendOTP(context, String _pnone) async {
               context,
               MaterialPageRoute(
                 builder: (context) => OTPVarificationPage(
-                    phone: '+91 ${_pnone}', verificationId: verificationId),
+                    phone: '+91 $pnone', verificationId: verificationId),
               ));
         },
         verificationCompleted: (PhoneAuthCredential phoneAuthCredential) {},
-        codeAutoRetrievalTimeout: (String verificationId) {},
+        codeAutoRetrievalTimeout: (String verificationId) {
+        },
         verificationFailed: (FirebaseAuthException error) {},
       )
       .whenComplete(() {});
@@ -1541,9 +180,7 @@ SendOTP(context, String _pnone) async {
 
 verifyOTP(context, verificationId, String code, function) async {
   Loading(context);
-  FirebaseAuth auth = FirebaseAuth.instance;
-  PhoneAuthCredential credential = PhoneAuthProvider.credential(
-      verificationId: verificationId, smsCode: code);
+  PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: verificationId, smsCode: code);
   await auth.signInWithCredential(credential).whenComplete(() async {
     await function;
     Navigator.pop(context);
@@ -1557,7 +194,7 @@ verifyOTP(context, verificationId, String code, function) async {
       Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => HomePage(),
+            builder: (context) => const HomePage(),
           ));
     }
   });
@@ -1580,8 +217,9 @@ Future getUserData(String phone) async {
     cuLName = value["Last Name"];
     cuPhone = value["Phone No"];
     cuPhoto = value["Photo"];
-    cuName = cuFName + " " + cuLName;
+    selectedCity="";
   });
+  await setDetails(cuFName, cuLName, cuPhone, cuPhone, selectedCity);
 }
 
 Future getLocalDetails() async {
@@ -1591,18 +229,57 @@ Future getLocalDetails() async {
   cuPhone = sp.getString("cuPhone") ?? cuPhone;
   cuPhoto = sp.getString("cuPhoto") ?? cuPhoto;
   selectedCity = sp.getString("selectedCity") ?? selectedCity;
+  String? jsonList = sp.getString('metroStationsListJSON');
+  metroStationsList = json.decode(jsonList!).map<DropDownValueModel>((item) => DropDownValueModel.fromJson(item)).toList();
+  List<String>? metroGraphData = sp.getStringList('metroGraph');
+  for (String entry in metroGraphData!) {
+    List<String> parts = entry.split(':');
+    String key = parts[0];
+    Set<String> values = Set<String>.from(parts[1].split(','));
+    metroGraph[key] = values;
+  }
+  List stationListTemp = sp.getStringList('stationList')!;
+  stationList = stationListTemp.map((item) => item).toList();
+  List fareMatrixTemp = sp.getStringList('fareMatrix')!;
+  fareMatrix = fareMatrixTemp.map((item) => item).toList();
+  List cardListTemp = sp.getStringList('cardList')!;
+  cardList = cardListTemp.map((item) => item).toList();
+
+  List<String>? stationLineColorTemp = sp.getStringList('stationLineColor');
+  for (String entry in stationLineColorTemp!) {
+    List<String> parts = entry.split(':');
+    String key = parts[0];
+    Color value = parts[1] as Color;
+    stationLineColor[key] = value;
+  }
 }
 
-Future setDetails() async {
+Future setDetails(fname,lname,phone,photo,city) async {
   SharedPreferences sp = await SharedPreferences.getInstance();
-  sp.setString("cuFName", cuFName);
-  sp.setString("cuLName", cuLName);
-  sp.setString("cuPhone", cuPhone);
-  sp.setString("cuPhoto", cuPhoto);
-  sp.setString("selectedCity", selectedCity);
+  sp.setString("cuFName", fname);
+  sp.setString("cuLName", lname);
+  sp.setString("cuPhone", phone);
+  sp.setString("cuPhoto", photo);
+  sp.setString("selectedCity", city);
+  String metroStationsListJSON = json.encode(metroStationsList);
+  sp.setString('metroStationsListJSON', metroStationsListJSON);
+  sp.setStringList(
+    'metroGraph',
+    metroGraph.entries
+        .map((entry) => '${entry.key}:${entry.value.join(',')}')
+        .toList(),
+  );
+  sp.setStringList('stationList', stationList.map((item) => item.toString()).toList());
+  sp.setStringList('fareMatrix', fareMatrix.map((item) => item.toString()).toList());
+  sp.setStringList('cardList', cardList.map((item) => item.toString()).toList());
+  List<String> stationLineColorTemp = stationLineColor.entries
+      .map((entry) => '${entry.key}:${entry.value}')
+      .toList();
+  sp.setStringList('stationLineColor', stationLineColorTemp);
+
 }
 
-Map<String, Color> LineColor = {
+Map<String, Color> lineColor = {
   "Red": Colors.red,
   "Blue": Colors.blue,
   "Pink": Colors.pink,
@@ -1615,3 +292,59 @@ Map<String, Color> LineColor = {
   "Orange": Colors.orange
 };
 
+Future buildDataBase(String city) async{
+  metroStationsList = [];
+  metroGraph = {};
+  stationList=[];
+  fareMatrix=[];
+  stationLineColor= {};
+  //Metro Stations List
+  final snapshot= await ref.ref("Cities/$city").orderByKey().get();
+  List list=[];
+  Map<dynamic,dynamic> values = snapshot.value as Map;
+  values.forEach((key, value) {
+    list.add(value);
+  });
+
+  for(int i=0;i<list.length;i++){
+    Map temp =list[i];
+    List temp1=[];
+    temp1.add(int.parse(temp["No"]));
+    temp1.add(temp["Name"]);
+    temp1.add(temp["X"]);
+    temp1.add(temp["Y"]);
+    temp1.add(temp["Line"]);
+    temp1.add(temp["Terminal"]);
+    temp1.add(temp["Connected Line"]);
+    temp1.add(temp["Connected Stations"]);
+    stationList.add(temp1);
+  }
+  for(int i=0;i<stationList.length;i++){
+    stationList.sort((a, b) => a[1].compareTo(b[1]));
+  }
+
+  for(int i=0;i<stationList.length;i++) {
+    metroStationsList.add(DropDownValueModel(
+        name: stationList[i][1],
+        value: stationList[i][1]));
+    stationLineColor[stationList[i][1]]=lineColor[stationList[i][4]]!;
+  }
+  for (var item in stationList) {
+    String key = item[1];
+    Set<String> value = Set<String>.from(item[7]);
+    metroGraph[key] = value;
+  }
+  //Fare Matrix
+  final snapshot1 =
+  await ref.ref("Fare/$city/locations").orderByKey().get();
+  List<dynamic> values1 = snapshot1.value as List<dynamic>;
+  List<Object> list1 = List<Object>.from(values1);
+  final snapshot2 =
+  await ref.ref("Fare/$city/distances").orderByKey().get();
+  List<dynamic> values2 = snapshot2.value as List<dynamic>;
+  List<Object> list2 = List<Object>.from(values2);
+  fareMatrix.add(list1);
+  for (var x in list2){
+    fareMatrix.add(x);
+  }
+}

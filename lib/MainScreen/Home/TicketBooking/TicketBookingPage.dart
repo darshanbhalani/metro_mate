@@ -49,11 +49,11 @@ class _TicketBookingPageState extends State<TicketBookingPage> {
             children: [
               DropField(
                   context, "Number of Tickets", Numbers, _controller1, true),
-              DropField(context, "Source", Stations, _controller2, true),
-              DropField(context, "Destination", Stations, _controller3, true),
+              DropField(context, "Source", metroStationsList, _controller2, true),
+              DropField(context, "Destination", metroStationsList, _controller3, true),
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text("Price of Single Ticket :- $fare"),
+                child: Text("fareMatrix of Single Ticket :- $fare"),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -125,19 +125,19 @@ class _TicketBookingPageState extends State<TicketBookingPage> {
       if (_controller2.dropDownValue!.value !=
           _controller3.dropDownValue!.value) {
         Loading(context);
-        for (int i = 0; i < Price[0].length; i++) {
-          if (Price[0][i] == _controller2.dropDownValue!.value) {
+        for (int i = 0; i < fareMatrix[0].length; i++) {
+          if (fareMatrix[0][i] == _controller2.dropDownValue!.value) {
             x = i;
             break;
           }
         }
-        for (int i = 0; i < Price[0].length; i++) {
-          if (Price[i][0] == _controller3.dropDownValue!.value) {
+        for (int i = 0; i < fareMatrix[0].length; i++) {
+          if (fareMatrix[i][0] == _controller3.dropDownValue!.value) {
             y = i;
             break;
           }
         }
-        fare = int.parse(Price[x][y]);
+        fare = int.parse(fareMatrix[x][y]);
         totalFare = fare * (_controller1.dropDownValue!.value as int);
         setState(() {
           flag = true;

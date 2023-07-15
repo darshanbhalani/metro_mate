@@ -1,6 +1,5 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:metro_mate/MainScreen/Home/HomePage.dart';
 import 'package:metro_mate/LogIn/LoginPage.dart';
 import 'package:metro_mate/LogIn/SignUpPage.dart';
 import 'package:metro_mate/Variables.dart';
@@ -81,11 +80,6 @@ class _MainPageState extends State<MainPage> {
                 const SizedBox(height: 100,),
                 InkWell(
                   onTap: () async {
-                    // Navigator.push(
-                    //     context,
-                    //     MaterialPageRoute(
-                    //       builder: (context) => const HomePage(),
-                    //     ));
                     Navigator.push(
                         context,
                         MaterialPageRoute(

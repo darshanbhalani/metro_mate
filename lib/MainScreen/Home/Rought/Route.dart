@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:metro_mate/Variables.dart';
 
-class RoutePage extends StatefulWidget {
+class RouteViewPage extends StatefulWidget {
   final String start;
   final String end;
   final List list;
-  const RoutePage({super.key,required this.start,required this.end,required this.list});
+  const RouteViewPage({super.key,required this.start,required this.end,required this.list});
 
   @override
-  State<RoutePage> createState() => _RoutePageState();
+  State<RouteViewPage> createState() => _RouteViewPageState();
 }
 
-class _RoutePageState extends State<RoutePage> {
+class _RouteViewPageState extends State<RouteViewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

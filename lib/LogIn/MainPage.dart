@@ -87,7 +87,7 @@ class _MainPageState extends State<MainPage> {
                         ));
                   },
                   child: Container(
-                    height: 60,
+                    height: 50,
                     width: MediaQuery.of(context).size.width,
                     decoration: BoxDecoration(
                         color: PrimaryColor,

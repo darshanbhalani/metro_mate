@@ -3,9 +3,9 @@ import 'package:metro_mate/MainScreen/Bookings/BookingsPage.dart';
 import 'package:metro_mate/MainScreen/Home/Drawer/DrawerPage.dart';
 import 'package:metro_mate/MainScreen/Home/FindNearestStation/FindNearestStationPage.dart';
 import 'package:metro_mate/MainScreen/Home/MetroMap/MetroMapPage.dart';
+import 'package:metro_mate/MainScreen/Home/Rought/RoughtPage.dart';
 import 'package:metro_mate/MainScreen/Profile/ProfilePage.dart';
 import 'package:metro_mate/MainScreen/Home/RechargeMetroCard/RechareMetroCardPage.dart';
-import 'package:metro_mate/MainScreen/Home/Rought/RoughtPage.dart';
 import 'package:metro_mate/MainScreen/Home/StationsList/StationsListPage.dart';
 import 'package:metro_mate/MainScreen/Home/TicketBooking/TicketBookingPage.dart';
 import 'package:metro_mate/Variables.dart';
@@ -174,7 +174,7 @@ class _HomePageState extends State<HomePage> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => RoughtPage(),
+                              builder: (context) => RoutePage(),
                             ));
                       },
                       child: Container(
@@ -191,7 +191,7 @@ class _HomePageState extends State<HomePage> {
                             Icon(
                               Icons.format_strikethrough, color: PrimaryColor,),
                             Text(
-                              "Rought", style: TextStyle(color: PrimaryColor),)
+                              "Route", style: TextStyle(color: PrimaryColor),)
                           ],
                         ),
                       ),

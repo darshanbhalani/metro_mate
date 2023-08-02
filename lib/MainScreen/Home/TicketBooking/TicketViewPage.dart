@@ -4,8 +4,10 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:metro_mate/Variables.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:share/share.dart';
 
 class TicketViewPage extends StatefulWidget {
   final String city;
@@ -27,6 +29,7 @@ class TicketViewPage extends StatefulWidget {
 
 class _TicketViewPageState extends State<TicketViewPage> {
   final _imgkey = GlobalKey<FormState>();
+  var ref;
 
   @override
   void initState(){
@@ -39,9 +42,17 @@ class _TicketViewPageState extends State<TicketViewPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.black),
-        backgroundColor: Colors.transparent,
+        backgroundColor: PrimaryColor,
+        title: Text("QR Ticket"),
         elevation: 0,
+        actions: [
+          IconButton(onPressed: () async{
+            await download();
+          }, icon: Icon(Icons.download)),
+          IconButton(onPressed: () async{
+            await share();
+          }, icon: Icon(Icons.share)),
+        ],
       ),
         body:RepaintBoundary(
           child: Center(
@@ -125,6 +136,10 @@ class _TicketViewPageState extends State<TicketViewPage> {
 
     final storageRef = FirebaseStorage.instance.ref().child(
         'Tickets/${widget.city}/${widget.bookingId}');
+    ref=await storageRef.getDownloadURL();
+    print("???????????????????????????????????????????????????????????????");
+    print(storageRef.getDownloadURL());
+    print(ref);
     storageRef.putData(pngBytes).whenComplete(() async {
       final ticketUrl = await FirebaseStorage.instance
           .ref()
@@ -146,4 +161,27 @@ class _TicketViewPageState extends State<TicketViewPage> {
       });
     });
   }
+
+  Future download() async{
+    Loading(context);
+    RenderRepaintBoundary boundary = _imgkey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+    ui.Image image = await boundary.toImage();
+    ByteData? byteData =
+    await (image.toByteData(format: ui.ImageByteFormat.png));
+    await ImageGallerySaver.saveImage(byteData!.buffer.asUint8List());
+    Navigator.pop(context);
+  }
+
+  Future share() async{
+    // Loading(context);
+    // RenderRepaintBoundary boundary = _imgkey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+    // ui.Image image = await boundary.toImage();
+    // ByteData? byteData = await (image.toByteData(format: ui.ImageByteFormat.png));
+    // Navigator.pop(context);
+    await Share.share(
+      "QR Ticket \n $ref",
+    );
+  }
 }
+
+

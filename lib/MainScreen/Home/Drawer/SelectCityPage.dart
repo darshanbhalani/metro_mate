@@ -14,78 +14,85 @@ class SelectCityPage extends StatefulWidget {
 class _SelectCityPageState extends State<SelectCityPage> {
 
   String temp=selectedCity;
+  int? flag;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Select City"),
+        backgroundColor: PrimaryColor,
       ),
-      body: ListView.builder(
-        itemCount: Cities.length,
-        itemBuilder: (BuildContext context, int index) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              InkWell(
-                onTap: (){
-                  temp=Cities[index].toString();
-                  setState(() {
-                  });
-                },
+      body:  Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 12),
+        child: GridView.builder(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, // Adjust the number of columns here
+            crossAxisSpacing: 10.0, // Adjust the horizontal spacing between grid items
+            mainAxisSpacing: 10.0, // Adjust the vertical spacing between grid items
+          ),
+          itemCount: Cities.length,
+          itemBuilder: (BuildContext context, int index) {
+            return InkWell(
+              onTap: (){
+                flag=index;
+                temp=Cities[index];
+                setState(() {
+                });
+              },
+              child: GridTile(
                 child: Container(
-                  height: 60,
                   decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(10)
+                    color: Colors.white,
+                    border: Border.all(color:index==flag ? PrimaryColor:Colors.grey,width:index==flag ? 2:1),
+                    borderRadius: BorderRadius.circular(12)
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 75,
-                              decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                      image: AssetImage("assets/images/Ahmedabad.png")
-                                  )
-                              ),
-                            ),
-                            SizedBox(width: 20,),
-                            Text(Cities[index],style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),)
-                          ],
+                        SizedBox(height: 35,),
+                        Image.asset("assets/images/cities/${Cities[index]}.jpg"),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(Cities[index],style: TextStyle(fontSize:18,fontWeight: FontWeight.bold),),
                         ),
-                        Visibility(
-                            visible: temp==Cities[index],
-                            child: Icon(Icons.done_outline,color: PrimaryColor,))
                       ],
-                    ),
+                    )
                   ),
                 ),
               ),
-              SizedBox(height: 10,)
-            ],
-          );
-        }),
+            );
+          },
+        ),
+      ),
       bottomSheet: InkWell(
         onTap: () async {
-          Loading(context);
-          if(temp != widget.currentCity){
-            selectedCity=temp;
-            setState(() {});
-              await buildDataBase(selectedCity);
-              await setDetails(cuFName, cuLName, cuPhone, cuPhone, selectedCity);
-          }
-          Navigator.pop(context);
-          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
-            builder: (context) => HomePage(),
-          ), (route) => false);
-          Navigator.push(context, MaterialPageRoute(
-              builder: (context) => HomePage()));
+       if(temp != ""){
+         if(temp=="Ahmedabad"){
+           Loading(context);
+           if(temp != widget.currentCity){
+             selectedCity=temp;
+             setState(() {});
+             await buildDataBase(selectedCity);
+             await setLocalDetails(cuFName, cuLName, cuPhone, cuPhone, selectedCity);
+           }
+           Navigator.pop(context);
+           Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+             builder: (context) => HomePage(),
+           ), (route) => false);
+           Navigator.push(context, MaterialPageRoute(
+               builder: (context) => HomePage()));
+         }else{
+           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+             content: Text("Sorry !! Currently Metro Mate is not available for selected city"),
+           ));
+         }
+       }else{
+         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+           content: Text("Please selected city"),
+         ));
+       }
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),

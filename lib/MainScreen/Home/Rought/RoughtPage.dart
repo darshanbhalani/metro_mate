@@ -3,15 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:metro_mate/MainScreen/Home/Rought/Route.dart';
 import 'package:metro_mate/MainScreen/Home/Rought/Temp.dart';
 import 'package:metro_mate/Variables.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class RoughtPage extends StatefulWidget {
-  const RoughtPage({Key? key}) : super(key: key);
+class RoutePage extends StatefulWidget {
+  const RoutePage({Key? key}) : super(key: key);
 
   @override
-  State<RoughtPage> createState() => _RoughtPageState();
+  State<RoutePage> createState() => _RoutePageState();
 }
 
-class _RoughtPageState extends State<RoughtPage> {
+class _RoutePageState extends State<RoutePage> {
   final _controller1 = SingleValueDropDownController();
   final _controller2 = SingleValueDropDownController();
   final _formkey = GlobalKey<FormState>();
@@ -22,7 +23,7 @@ class _RoughtPageState extends State<RoughtPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: PrimaryColor,
-        title: const Text("Search Rought"),
+        title: const Text("Search Route"),
       ),
       body: Form(
         key: _formkey,
@@ -41,21 +42,47 @@ class _RoughtPageState extends State<RoughtPage> {
       bottomSheet: InkWell(
         onTap: () async {
           Loading(context);
-           Graph graph = Graph();
-           List<String>? path = graph.bfs(_controller1.dropDownValue!.value.toString(), _controller2.dropDownValue!.value.toString());
-           Navigator.pop(context);
+          final snapshot= await ref.ref("Cities/$selectedCity").orderByKey().get();
+          List list=[];
+          Map<dynamic,dynamic> values = snapshot.value as Map;
+          values.forEach((key, value) {
+            list.add(value);
+          });
+          for(int i=0;i<list.length;i++){
+            Map temp =list[i];
+            List temp1=[];
+            temp1.add(int.parse(temp["No"]));
+            temp1.add(temp["Name"]);
+            temp1.add(temp["Line"]);
+            temp1.add(temp["Connected Stations"]);
+            stationList.add(temp1);
+          }
+          for(int i=0;i<stationList.length;i++){
+            stationList.sort((a, b) => a[1].compareTo(b[1]));
+          }
+          for(int i=0;i<stationList.length;i++) {
+          stationLineColor[stationList[i][1]]=lineColor[stationList[i][2]]!;
+        }
+          for (var item in stationList) {
+            String key = item[1];
+            Set<String> value = Set<String>.from(item[3]);
+            metroGraph[key] = value;
+          }
+          Graph graph = Graph();
+          List<String>? path = graph.bfs(_controller1.dropDownValue!.value.toString(), _controller2.dropDownValue!.value.toString());
+          Navigator.pop(context);
           if (path != null) {
-             List route = path;
-             Navigator.push(
-                 context,
-                 MaterialPageRoute(
-                   builder: (context) => RoutePage(start:_controller1.dropDownValue!.value.toString(),end:_controller2.dropDownValue!.value.toString(),list: route,),
-                 ));
-           } else {
-             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-               content: Text("Source and Destination both are Same !"),
-             ));
-           }
+            List route = path;
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RouteViewPage(start:_controller1.dropDownValue!.value.toString(),end:_controller2.dropDownValue!.value.toString(),list: route),
+                ));
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text("Source and Destination both are Same !"),
+            ));
+          }
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),

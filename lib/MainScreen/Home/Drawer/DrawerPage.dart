@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:metro_mate/MainScreen/Home/FAQandSupportPage.dart';
+import 'package:metro_mate/MainScreen/Home/Drawer/FAQandSupportPage.dart';
 import 'package:metro_mate/MainScreen/Home/Drawer/SelectCityPage.dart';
 import 'package:metro_mate/MainScreen/Home/Drawer/TermsofUsagePage.dart';
 import 'package:metro_mate/Variables.dart';

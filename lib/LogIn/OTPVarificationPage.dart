@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:metro_mate/Variables.dart';
@@ -20,6 +21,7 @@ class _OTPVarificationPageState extends State<OTPVarificationPage> {
   TextEditingController controller4 = TextEditingController();
   TextEditingController controller5 = TextEditingController();
   TextEditingController controller6 = TextEditingController();
+  String cvId="";
   String _hintText = "0";
   var code = "";
 
@@ -36,6 +38,7 @@ class _OTPVarificationPageState extends State<OTPVarificationPage> {
 
   @override
   Widget build(BuildContext context) {
+    cvId=widget.verificationId;
     return Scaffold(
       body: Stack(children: [
         Positioned(
@@ -115,12 +118,30 @@ class _OTPVarificationPageState extends State<OTPVarificationPage> {
                 height: 10,
               ),
               InkWell(
-                  onTap: () {
-                    //   Navigator.push(
-                    //       context,
-                    //       MaterialPageRoute(
-                    //         builder: (context) => HomePage(),
-                    //       ));
+                  onTap: () async {
+                    Loading(context);
+                    try{
+                      await auth
+                          .verifyPhoneNumber(
+                        phoneNumber: '${widget.phone}',
+                        codeSent: (String verificationId, int? resendToken) async {
+                          cvId = verificationId;
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                            content: Text("OTP Sended"),
+                          ));
+                        },
+                        verificationCompleted: (PhoneAuthCredential phoneAuthCredential) {},
+                        codeAutoRetrievalTimeout: (String verificationId) {
+                        },
+                        verificationFailed: (FirebaseAuthException error) {},
+                      );
+                    } catch(e){
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text("Oops! Somthing went wrong please try again later"),
+                      ));
+                    }
                   },
                   child: Text(
                     "Resend OTP",
@@ -133,7 +154,7 @@ class _OTPVarificationPageState extends State<OTPVarificationPage> {
       bottomSheet: InkWell(
         onTap: () async {
           verifyOTP(
-              context, widget.verificationId, code, getUserData(widget.phone));
+              context,cvId=="" ? widget.verificationId:cvId, code, getUserData(widget.phone));
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),

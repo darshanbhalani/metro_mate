@@ -1,12 +1,10 @@
 import 'dart:convert';
-import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_textfield/dropdown_textfield.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:metro_mate/MainScreen/Home/HomePage.dart';
 import 'package:metro_mate/LogIn/OTPVarificationPage.dart';
 import 'package:metro_mate/MainScreen/Home/Drawer/SelectCityPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,8 +27,6 @@ Map<String, Set<String>> metroGraph = {};
 List stationList=[];
 List fareMatrix=[];
 Map<String,Color> stationLineColor= {};
-
-
 
 
 ShowField(String lable, String value, bool flag) {
@@ -82,6 +78,7 @@ TFormField(context, String lable, TextEditingController controller,
   return Column(
     children: [
       TextFormField(
+        cursorColor: Colors.black,
           obscureText: flag,
           enabled: condition,
           validator: (value) {
@@ -102,7 +99,7 @@ TFormField(context, String lable, TextEditingController controller,
             )),
             focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-              color: Theme.of(context).primaryColor,
+              color: PrimaryColor,
               width: 2,
             )),
             enabledBorder: const OutlineInputBorder(
@@ -111,6 +108,7 @@ TFormField(context, String lable, TextEditingController controller,
             labelText: lable,
             labelStyle: const TextStyle(
               fontSize: 15,
+              color: Colors.black
             ),
           ),
           inputFormatters: [
@@ -156,48 +154,72 @@ List Cities = [
 ];
 
 
-SendOTP(context, String pnone) async {
-  await auth
-      .verifyPhoneNumber(
-        phoneNumber: '+91 $pnone',
-        codeSent: (String verificationId, int? resendToken) async {
-          verificationId = verificationId;
-          Navigator.pop(context);
+SendOTP(context, String pnone,bool flag) async {
+  try{
+    await auth
+        .verifyPhoneNumber(
+      phoneNumber: '+91 $pnone',
+      codeSent: (String verificationId, int? resendToken) async {
+        verificationId = verificationId;
+        Navigator.pop(context);
+        if(flag) {
           Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => OTPVarificationPage(
-                    phone: '+91 $pnone', verificationId: verificationId),
+                builder: (context) =>
+                    OTPVarificationPage(
+                        phone: '+91 $pnone', verificationId: verificationId),
               ));
-        },
-        verificationCompleted: (PhoneAuthCredential phoneAuthCredential) {},
-        codeAutoRetrievalTimeout: (String verificationId) {
-        },
-        verificationFailed: (FirebaseAuthException error) {},
-      )
-      .whenComplete(() {});
+        }
+      },
+      verificationCompleted: (PhoneAuthCredential phoneAuthCredential) {},
+      codeAutoRetrievalTimeout: (String verificationId) {
+      },
+      verificationFailed: (FirebaseAuthException error) {},
+    );
+  }catch(e){
+    Navigator.pop(context);
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text("Oops! Somthing went wrong please try again later"),
+    ));
+  }
 }
 
 verifyOTP(context, verificationId, String code, function) async {
   Loading(context);
-  PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: verificationId, smsCode: code);
-  await auth.signInWithCredential(credential).whenComplete(() async {
-    await function;
-    Navigator.pop(context);
-    if (selectedCity == "") {
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => SelectCityPage(currentCity: selectedCity),
-          ));
+  try {
+    PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: verificationId, smsCode: code);
+    UserCredential userCredential = await auth.signInWithCredential(credential);
+    if (userCredential.user != null) {
+      await function;
+      Navigator.pop(context);
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SelectCityPage(currentCity: selectedCity),
+            ));
     } else {
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const HomePage(),
-          ));
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("Oops! Somthing went wrong please try again later"),
+      ));
     }
-  });
+  } catch (e) {
+    Navigator.pop(context);
+    if(e.hashCode.toString()=="37476458"){
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text("Oops! Wrong OTP"),
+    ));}
+    else if(e.hashCode.toString()=="463626008"){
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("Oops! OTP timed out please resend OTP"),
+      ));}
+    else{
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("Oops! Somthing went wrong please try again later"),
+      ));
+    }
+  }
 }
 
 Future SignUp(String fname, String lname, String phone) async {
@@ -219,7 +241,7 @@ Future getUserData(String phone) async {
     cuPhoto = value["Photo"];
     selectedCity="";
   });
-  await setDetails(cuFName, cuLName, cuPhone, cuPhone, selectedCity);
+  await setLocalDetails(cuFName, cuLName, cuPhone, cuPhone, selectedCity);
 }
 
 Future getLocalDetails() async {
@@ -231,30 +253,9 @@ Future getLocalDetails() async {
   selectedCity = sp.getString("selectedCity") ?? selectedCity;
   String? jsonList = sp.getString('metroStationsListJSON');
   metroStationsList = json.decode(jsonList!).map<DropDownValueModel>((item) => DropDownValueModel.fromJson(item)).toList();
-  List<String>? metroGraphData = sp.getStringList('metroGraph');
-  for (String entry in metroGraphData!) {
-    List<String> parts = entry.split(':');
-    String key = parts[0];
-    Set<String> values = Set<String>.from(parts[1].split(','));
-    metroGraph[key] = values;
-  }
-  List stationListTemp = sp.getStringList('stationList')!;
-  stationList = stationListTemp.map((item) => item).toList();
-  List fareMatrixTemp = sp.getStringList('fareMatrix')!;
-  fareMatrix = fareMatrixTemp.map((item) => item).toList();
-  List cardListTemp = sp.getStringList('cardList')!;
-  cardList = cardListTemp.map((item) => item).toList();
-
-  List<String>? stationLineColorTemp = sp.getStringList('stationLineColor');
-  for (String entry in stationLineColorTemp!) {
-    List<String> parts = entry.split(':');
-    String key = parts[0];
-    Color value = parts[1] as Color;
-    stationLineColor[key] = value;
-  }
 }
 
-Future setDetails(fname,lname,phone,photo,city) async {
+Future setLocalDetails(fname,lname,phone,photo,city) async {
   SharedPreferences sp = await SharedPreferences.getInstance();
   sp.setString("cuFName", fname);
   sp.setString("cuLName", lname);
@@ -263,20 +264,6 @@ Future setDetails(fname,lname,phone,photo,city) async {
   sp.setString("selectedCity", city);
   String metroStationsListJSON = json.encode(metroStationsList);
   sp.setString('metroStationsListJSON', metroStationsListJSON);
-  sp.setStringList(
-    'metroGraph',
-    metroGraph.entries
-        .map((entry) => '${entry.key}:${entry.value.join(',')}')
-        .toList(),
-  );
-  sp.setStringList('stationList', stationList.map((item) => item.toString()).toList());
-  sp.setStringList('fareMatrix', fareMatrix.map((item) => item.toString()).toList());
-  sp.setStringList('cardList', cardList.map((item) => item.toString()).toList());
-  List<String> stationLineColorTemp = stationLineColor.entries
-      .map((entry) => '${entry.key}:${entry.value}')
-      .toList();
-  sp.setStringList('stationLineColor', stationLineColorTemp);
-
 }
 
 Map<String, Color> lineColor = {
@@ -294,10 +281,10 @@ Map<String, Color> lineColor = {
 
 Future buildDataBase(String city) async{
   metroStationsList = [];
-  metroGraph = {};
-  stationList=[];
-  fareMatrix=[];
-  stationLineColor= {};
+  // metroGraph = {};
+  // stationList=[];
+  // fareMatrix=[];
+  // stationLineColor= {};
   //Metro Stations List
   final snapshot= await ref.ref("Cities/$city").orderByKey().get();
   List list=[];
@@ -329,22 +316,63 @@ Future buildDataBase(String city) async{
         value: stationList[i][1]));
     stationLineColor[stationList[i][1]]=lineColor[stationList[i][4]]!;
   }
-  for (var item in stationList) {
-    String key = item[1];
-    Set<String> value = Set<String>.from(item[7]);
-    metroGraph[key] = value;
-  }
+  // for (var item in stationList) {
+  //   String key = item[1];
+  //   Set<String> value = Set<String>.from(item[7]);
+  //   metroGraph[key] = value;
+  // }
   //Fare Matrix
-  final snapshot1 =
-  await ref.ref("Fare/$city/locations").orderByKey().get();
-  List<dynamic> values1 = snapshot1.value as List<dynamic>;
-  List<Object> list1 = List<Object>.from(values1);
-  final snapshot2 =
-  await ref.ref("Fare/$city/distances").orderByKey().get();
-  List<dynamic> values2 = snapshot2.value as List<dynamic>;
-  List<Object> list2 = List<Object>.from(values2);
-  fareMatrix.add(list1);
-  for (var x in list2){
-    fareMatrix.add(x);
-  }
+  // final snapshot1 =
+  // await ref.ref("Fare/$city/locations").orderByKey().get();
+  // List<dynamic> values1 = snapshot1.value as List<dynamic>;
+  // List<Object> list1 = List<Object>.from(values1);
+  // final snapshot2 =
+  // await ref.ref("Fare/$city/distances").orderByKey().get();
+  // List<dynamic> values2 = snapshot2.value as List<dynamic>;
+  // List<Object> list2 = List<Object>.from(values2);
+  // fareMatrix.add(list1);
+  // for (var x in list2){
+  //   fareMatrix.add(x);
+  // }
+  await setLocalDetails(cuFName, cuLName, cuPhone, cuPhone, selectedCity);
 }
+
+
+List FAQ=[
+  [
+    "I haven't received an OTP to log in/Sign up. What should I do ?",
+    "By default, the Metro Mate app will recognize the OTP once you receive it. In case this doesn’t happen, then you can check your SMS inbox. If you still haven’t received it, then write to us at support@metromate.in"
+  ],
+  [
+    "Why do I need to log in?",
+    "Logging in to the Metro Mate app allows us to give you a personalised and seamless commute experience. You can save your select your city and add money to your wallet."
+  ],
+  [
+    "What are the different ways to log in?",
+    "There are only ways to log in to Metro Mate using your mobile number and an OTP."
+  ],
+  [
+    "Why is the app asking to access my location?",
+    "Since Metro Mate is a commuting app, accessing your location is important for us to provide the best service to you. It allows us to find metro stations near you"
+  ],
+  [
+    "How can I cancel ticket and refund amount?",
+    "Currently it is not possible to cancel your booked ticket and get refund."
+  ],
+  [
+    "Metro Mate is not available in my city. How can I vote for my city?",
+    "Metro Mate is available for all cities which have active metro rail service but some time due to any issue Metro Mate temporary unavailable for specific city."
+  ],
+  [
+    "What do I do if the app shows an internet connectivity issue?",
+    "Check the internet connectivity on your phone, or switch off your wifi/mobile data and restart it after a couple of minutes. You can also try closing and restarting Metro Mate app."
+  ],
+  [
+    "How can I change my city on the Metro Mate app?",
+    "It is very easy to change city. Follow step Open Drawer(Menu/Three Line) and you will get option like change/select city."
+  ],
+  [
+    "Can I use the app offline?",
+    "No, It is not possible to run app offline nut you can able to download ticket offline in gallery."
+  ],
+];

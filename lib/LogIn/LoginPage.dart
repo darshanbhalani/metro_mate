@@ -123,7 +123,7 @@ class _LoginPageState extends State<LoginPage> {
                 var snapShot = await fire.collection("Users").doc(controller.text.toString()).get();
                 if(snapShot.exists){
                   await getUserData(controller.text.toString());
-                  await SendOTP(context,controller.text.toString());
+                  await SendOTP(context,controller.text.toString(),true);
                 }else{
                   flag=true;
                   setState(() {

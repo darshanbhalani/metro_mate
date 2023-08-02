@@ -22,7 +22,7 @@ class _BookingPageState extends State<BookingPage> {
       ),
 
       body: StreamBuilder(
-        stream: fire.collection("Tickets").where("Phone No",isEqualTo:"9909343073").orderBy("DateTime", descending: true).snapshots(),
+        stream: fire.collection("Tickets").where("Phone No",isEqualTo:cuPhone).orderBy("DateTime", descending: true).snapshots(),
         builder: (context,AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData) {
             return Center(

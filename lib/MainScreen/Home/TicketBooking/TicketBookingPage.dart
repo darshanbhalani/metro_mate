@@ -25,8 +25,6 @@ class _TicketBookingPageState extends State<TicketBookingPage> {
   final _formkey = GlobalKey<FormState>();
   final _imgkey = GlobalKey<FormState>();
   String? qrData;
-  int x = 0;
-  int y = 0;
   int fare = 0;
   int totalFare = 0;
   bool flag = false;
@@ -65,6 +63,7 @@ class _TicketBookingPageState extends State<TicketBookingPage> {
       ),
       bottomSheet: InkWell(
         onTap: () async {
+          Loading(context);
           if (_formkey.currentState!.validate()) {
             if (_controller2.dropDownValue!.value !=
                 _controller3.dropDownValue!.value) {
@@ -88,6 +87,7 @@ class _TicketBookingPageState extends State<TicketBookingPage> {
                 // await PaymentMethods();
                 // ticketView(qrData, bookingTime, bookingDate, totalFare,_controller1.dropDownValue!.value.toString(),bookingId);
               });
+              Navigator.pop(context);
               Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -109,7 +109,7 @@ class _TicketBookingPageState extends State<TicketBookingPage> {
               color: PrimaryColor,
             ),
             child: Center(
-                child: flag ? const Text("Next",
+                child: !flag ? const Text("Next",
                     style: TextStyle(fontSize: 20, color: Colors.white)):Text("Pay ₹ $totalFare",
                     style: const TextStyle(fontSize: 20, color: Colors.white))),
           ),
@@ -118,26 +118,40 @@ class _TicketBookingPageState extends State<TicketBookingPage> {
     );
   }
 
-  Calculate() {
+  Calculate() async{
+    int? x;
+    int? y;
     if (_controller1.dropDownValue!.value != null &&
         _controller2.dropDownValue!.value != null &&
         _controller3.dropDownValue!.value != null) {
       if (_controller2.dropDownValue!.value !=
           _controller3.dropDownValue!.value) {
         Loading(context);
+        final snapshot1 =
+        await ref.ref("Fare/$selectedCity/locations").orderByKey().get();
+        List<dynamic> values1 = snapshot1.value as List<dynamic>;
+        List<Object> list1 = List<Object>.from(values1);
+        final snapshot2 =
+        await ref.ref("Fare/$selectedCity/distances").orderByKey().get();
+        List<dynamic> values2 = snapshot2.value as List<dynamic>;
+        List<Object> list2 = List<Object>.from(values2);
+        fareMatrix.add(list1);
+        for (var x in list2) {
+          fareMatrix.add(x);
+        }
         for (int i = 0; i < fareMatrix[0].length; i++) {
-          if (fareMatrix[0][i] == _controller2.dropDownValue!.value) {
+          if (fareMatrix[0][i] == _controller2.dropDownValue!.value.toString()) {
             x = i;
             break;
           }
         }
-        for (int i = 0; i < fareMatrix[0].length; i++) {
+        for (int i = 0; i < fareMatrix.length; i++) {
           if (fareMatrix[i][0] == _controller3.dropDownValue!.value) {
             y = i;
             break;
           }
         }
-        fare = int.parse(fareMatrix[x][y]);
+        fare = int.parse(fareMatrix[x!][y!]);
         totalFare = fare * (_controller1.dropDownValue!.value as int);
         setState(() {
           flag = true;

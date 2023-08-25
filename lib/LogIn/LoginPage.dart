@@ -98,7 +98,7 @@ class _LoginPageState extends State<LoginPage> {
                           visible: flag,
                           child: const SizedBox(height: 15,)),
                       TFormField(
-                          context, "Enter Phone No.", controller, true, false),
+                          context, "Phone No.", controller, true, false),
                       const SizedBox(
                         height: 100,
                       ),
@@ -115,15 +115,13 @@ class _LoginPageState extends State<LoginPage> {
         width: MediaQuery.of(context).size.width,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          child: InkWell(
+          child: GestureDetector(
             onTap: () async {
-              if (_key.currentState!.validate() &&
-                  controller.text.length == 10) {
+              if (_key.currentState!.validate() && controller.text.length == 10) {
                 Loading(context);
                 var snapShot = await fire.collection("Users").doc(controller.text.toString()).get();
                 if(snapShot.exists){
-                  await getUserData(controller.text.toString());
-                  await SendOTP(context,controller.text.toString(),true);
+                  await SendOTP(context,controller.text.toString(),true,"login");
                 }else{
                   flag=true;
                   setState(() {
@@ -138,11 +136,11 @@ class _LoginPageState extends State<LoginPage> {
                 borderRadius: BorderRadius.circular(5),
                 color: PrimaryColor,
               ),
-              child: const Center(
+              child:const Center(
                   child: Text(
-                "Send OTP",
-                style: TextStyle(fontSize: 20, color: Colors.white),
-              )),
+                    "Send OTP",
+                    style: TextStyle(fontSize: 20, color: Colors.white),
+                  )),
             ),
           ),
         ),
@@ -150,3 +148,5 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
+
+

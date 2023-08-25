@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "971659867295",
+    "firebase_url": "https://metro-mate-default-rtdb.firebaseio.com",
     "project_id": "metro-mate",
     "storage_bucket": "metro-mate.appspot.com"
   },
@@ -13,6 +14,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "971659867295-vgv4vj6cksaqqotocceml7680gbp2fhv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.metro_mate",
+            "certificate_hash": "5af3292ad8f100ec4bbd35edaabfc61f5738abe6"
+          }
+        },
         {
           "client_id": "971659867295-9ep1ia43c01tdro60fu8oaikrrtmv5ui.apps.googleusercontent.com",
           "client_type": 3

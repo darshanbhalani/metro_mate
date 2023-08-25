@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:metro_mate/LogIn/OTPVarificationPage.dart';
 import 'package:metro_mate/MainScreen/Home/Drawer/SelectCityPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 FirebaseAuth auth = FirebaseAuth.instance;
 FirebaseFirestore fire = FirebaseFirestore.instance;
@@ -21,6 +22,7 @@ String cuFName = "";
 String cuLName = "";
 String cuPhone = "";
 String cuPhoto = "";
+List metroData=[];
 List cardList=[];
 List<DropDownValueModel> metroStationsList = [];
 Map<String, Set<String>> metroGraph = {};
@@ -79,16 +81,19 @@ TFormField(context, String lable, TextEditingController controller,
     children: [
       TextFormField(
         cursorColor: Colors.black,
+          controller: controller,
           obscureText: flag,
           enabled: condition,
+          keyboardType: lable=="Phone No." ? TextInputType.number:TextInputType.text,
           validator: (value) {
-            if (controller.text.length != 10) {
-              return "Enter $lable";
+            if (lable=="Phone No." && controller.text.length != 10) {
+              return "Please Enter Valid $lable";
+            }
+            else if (controller.text.isEmpty) {
+              return "Please Enter $lable";
             }
             return null;
           },
-          controller: controller,
-          keyboardType: TextInputType.number,
           decoration: InputDecoration(
             disabledBorder: const OutlineInputBorder(
               borderSide: BorderSide(color: Colors.grey),
@@ -102,28 +107,31 @@ TFormField(context, String lable, TextEditingController controller,
               color: PrimaryColor,
               width: 2,
             )),
+            focusedErrorBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: PrimaryColor,
+                  width: 2,
+                )),
             enabledBorder: const OutlineInputBorder(
               borderSide: BorderSide(color: Colors.grey),
             ),
             labelText: lable,
             labelStyle: const TextStyle(
-              fontSize: 15,
+              fontSize: 16,
               color: Colors.black
             ),
           ),
-          inputFormatters: [
+          inputFormatters: lable=="Phone No." ?
+          [
             LengthLimitingTextInputFormatter(10),
             FilteringTextInputFormatter.digitsOnly,
-          ],
-          onChanged: (value) {
-            if (value.length == 10) {
-              FocusScope.of(context).nextFocus();
-            }
-          }),
+          ]:[],
+          ),
       const SizedBox(height: 15),
     ],
   );
 }
+
 
 Loading(context) {
   return showDialog(
@@ -154,7 +162,7 @@ List Cities = [
 ];
 
 
-SendOTP(context, String pnone,bool flag) async {
+SendOTP(context, String pnone,bool flag,String lable) async {
   try{
     await auth
         .verifyPhoneNumber(
@@ -168,13 +176,13 @@ SendOTP(context, String pnone,bool flag) async {
               MaterialPageRoute(
                 builder: (context) =>
                     OTPVarificationPage(
+                      lable:lable,
                         phone: '+91 $pnone', verificationId: verificationId),
               ));
         }
       },
       verificationCompleted: (PhoneAuthCredential phoneAuthCredential) {},
-      codeAutoRetrievalTimeout: (String verificationId) {
-      },
+      codeAutoRetrievalTimeout: (String verificationId) {},
       verificationFailed: (FirebaseAuthException error) {},
     );
   }catch(e){
@@ -185,18 +193,24 @@ SendOTP(context, String pnone,bool flag) async {
   }
 }
 
-verifyOTP(context, verificationId, String code, function) async {
+verifyOTP(context, verificationId, String code,String phone,lable) async {
   Loading(context);
   try {
     PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: verificationId, smsCode: code);
     UserCredential userCredential = await auth.signInWithCredential(credential);
     if (userCredential.user != null) {
-      await function;
+      getUserData(phone);
+      if(lable=="login"){
+        await getUserData(phone);
+      }
+      else if(lable=="signup"){
+        await signUp(cuFName, cuLName, phone);
+      }
       Navigator.pop(context);
         Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => SelectCityPage(currentCity: selectedCity),
+              builder: (context) => SelectCityPage(currentCity: ""),
             ));
     } else {
       Navigator.pop(context);
@@ -204,25 +218,27 @@ verifyOTP(context, verificationId, String code, function) async {
         content: Text("Oops! Somthing went wrong please try again later"),
       ));
     }
-  } catch (e) {
+  } on FirebaseException catch (e) {
     Navigator.pop(context);
-    if(e.hashCode.toString()=="37476458"){
+    if(e.code=="invalid-verification-code"){
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       content: Text("Oops! Wrong OTP"),
     ));}
-    else if(e.hashCode.toString()=="463626008"){
+    else if(e.code=="session-expired"){
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text("Oops! OTP timed out please resend OTP"),
       ));}
     else{
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Oops! Somthing went wrong please try again later"),
+      print(e.code);
+      ScaffoldMessenger.of(context).showSnackBar( SnackBar(
+        content: Text("${e.message}"),
       ));
     }
   }
 }
 
-Future SignUp(String fname, String lname, String phone) async {
+Future signUp(String fname, String lname, String phone) async {
+  phone=phone.replaceAll("+91 ", "");
   fire.collection("Users").doc(phone).set({
     "First Name": fname.toUpperCase(),
     "Last Name": lname.toUpperCase(),
@@ -253,6 +269,11 @@ Future getLocalDetails() async {
   selectedCity = sp.getString("selectedCity") ?? selectedCity;
   String? jsonList = sp.getString('metroStationsListJSON');
   metroStationsList = json.decode(jsonList!).map<DropDownValueModel>((item) => DropDownValueModel.fromJson(item)).toList();
+  stationList = metroStationsList.map((item) => item.value).toList();
+  final dataJson = sp.getString('metroData');
+  final dataX = jsonDecode(dataJson!);
+  metroData = List<List<Object>>.from(dataX.map((list) => List<Object>.from(list)));
+
 }
 
 Future setLocalDetails(fname,lname,phone,photo,city) async {
@@ -264,6 +285,8 @@ Future setLocalDetails(fname,lname,phone,photo,city) async {
   sp.setString("selectedCity", city);
   String metroStationsListJSON = json.encode(metroStationsList);
   sp.setString('metroStationsListJSON', metroStationsListJSON);
+  final dataJson1 = jsonEncode(metroData);
+  sp.setString('metroData', dataJson1);
 }
 
 Map<String, Color> lineColor = {
@@ -281,11 +304,12 @@ Map<String, Color> lineColor = {
 
 Future buildDataBase(String city) async{
   metroStationsList = [];
-  // metroGraph = {};
-  // stationList=[];
-  // fareMatrix=[];
-  // stationLineColor= {};
-  //Metro Stations List
+  metroGraph = {};
+  stationList=[];
+  fareMatrix=[];
+  stationLineColor= {};
+  metroData=[];
+
   final snapshot= await ref.ref("Cities/$city").orderByKey().get();
   List list=[];
   Map<dynamic,dynamic> values = snapshot.value as Map;
@@ -304,39 +328,32 @@ Future buildDataBase(String city) async{
     temp1.add(temp["Terminal"]);
     temp1.add(temp["Connected Line"]);
     temp1.add(temp["Connected Stations"]);
-    stationList.add(temp1);
-  }
-  for(int i=0;i<stationList.length;i++){
-    stationList.sort((a, b) => a[1].compareTo(b[1]));
+    metroData.add(temp1);
   }
 
-  for(int i=0;i<stationList.length;i++) {
-    metroStationsList.add(DropDownValueModel(
-        name: stationList[i][1],
-        value: stationList[i][1]));
-    stationLineColor[stationList[i][1]]=lineColor[stationList[i][4]]!;
+  for(int i=0;i<metroData.length;i++){
+    metroData.sort((a, b) => a[1].compareTo(b[1]));
   }
-  // for (var item in stationList) {
-  //   String key = item[1];
-  //   Set<String> value = Set<String>.from(item[7]);
-  //   metroGraph[key] = value;
-  // }
-  //Fare Matrix
-  // final snapshot1 =
-  // await ref.ref("Fare/$city/locations").orderByKey().get();
-  // List<dynamic> values1 = snapshot1.value as List<dynamic>;
-  // List<Object> list1 = List<Object>.from(values1);
-  // final snapshot2 =
-  // await ref.ref("Fare/$city/distances").orderByKey().get();
-  // List<dynamic> values2 = snapshot2.value as List<dynamic>;
-  // List<Object> list2 = List<Object>.from(values2);
-  // fareMatrix.add(list1);
-  // for (var x in list2){
-  //   fareMatrix.add(x);
-  // }
+
+  for(int i=0;i<metroData.length;i++) {
+    metroStationsList.add(DropDownValueModel(
+        name: metroData[i][1],
+        value: metroData[i][1]));
+  }
+  // stationList = metroStationsList.map((item) => item.value).toList();
+
   await setLocalDetails(cuFName, cuLName, cuPhone, cuPhone, selectedCity);
 }
 
+openGoogleMap(destination) async {
+  final url = 'https://www.google.com/maps/dir/?api=1&destination=$destination metro Station';
+  // final url = 'https://www.google.com/maps/dir/?api=1&destination=$X,$Y';
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw 'Could not launch $url';
+  }
+}
 
 List FAQ=[
   [

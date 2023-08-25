@@ -79,9 +79,9 @@ class YourSplashScreenContent extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox(
-              height: MediaQuery.of(context).size.height * 0.7,
-              width: MediaQuery.of(context).size.width * 0.7,
-              child: Image.asset('assets/images/Splash.png')),
+              height: MediaQuery.of(context).size.height * 0.5,
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: Image.asset('assets/images/AppIcon.png')),
           const SizedBox(height: 30,)
         ],
       ),

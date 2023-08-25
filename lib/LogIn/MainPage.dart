@@ -15,7 +15,6 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: Colors.white,
       body: Stack(
         children: [
           Positioned(
@@ -78,7 +77,7 @@ class _MainPageState extends State<MainPage> {
               children: [
                 const Center(child: Text("WELCOME",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 50),)),
                 const SizedBox(height: 100,),
-                InkWell(
+                GestureDetector(
                   onTap: () async {
                     Navigator.push(
                         context,
@@ -87,7 +86,7 @@ class _MainPageState extends State<MainPage> {
                         ));
                   },
                   child: Container(
-                    height: 50,
+                    height: 55,
                     width: MediaQuery.of(context).size.width,
                     decoration: BoxDecoration(
                         color: PrimaryColor,

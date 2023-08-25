@@ -1,0 +1,2 @@
+Color PrimaryColor = const Color.fromARGB(255, 255, 114, 94);
+Color SecondryColor = const Color.fromARGB(150, 255, 114, 94);

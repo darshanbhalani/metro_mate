@@ -9,6 +9,7 @@ import 'package:metro_mate/MainScreen/Home/TicketBooking/UPIPaymentPage.dart';
 import 'package:metro_mate/Variables.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:random_password_generator/random_password_generator.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 class TicketBookingPage extends StatefulWidget {
   const TicketBookingPage({Key? key}) : super(key: key);
@@ -30,6 +31,42 @@ class _TicketBookingPageState extends State<TicketBookingPage> {
   bool flag = false;
   String bookingTime = "";
   String bookingDate = "";
+  late Razorpay _razorpay;
+  String bookingId="";
+  // final _razorpay = Razorpay();
+
+  @override
+  void initState() {
+    _razorpay = Razorpay();
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
+  void dispose(){
+    _razorpay.clear();
+    super.dispose();
+  }
+
+  void _handlePaymentSuccess(PaymentSuccessResponse response) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TicketViewPage(city:selectedCity,phone:cuPhone,qrData: qrData!, source: _controller2.dropDownValue!.value, destination: _controller3.dropDownValue!.value, bookingTime: bookingTime, bookingDate: bookingDate, numberOfTickets: _controller1.dropDownValue!.value.toString(), totalFare: totalFare.toString(),bookingId: bookingId),
+        ));
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    // Do something when payment fails
+    print("Failssssssssssssssssssssssssssssssssssss");
+  }
+
+  Future<void> _handleExternalWallet(ExternalWalletResponse response) async {
+    await PaymentMethods();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +88,7 @@ class _TicketBookingPageState extends State<TicketBookingPage> {
               DropField(context, "Destination", metroStationsList, _controller3, true),
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text("fareMatrix of Single Ticket :- $fare"),
+                child: Text("Fare of Single Ticket :- $fare"),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -61,57 +98,61 @@ class _TicketBookingPageState extends State<TicketBookingPage> {
           ),
         ),
       ),
-      bottomSheet: InkWell(
-        onTap: () async {
-          Loading(context);
-          if (_formkey.currentState!.validate()) {
-            if (_controller2.dropDownValue!.value !=
-                _controller3.dropDownValue!.value) {
-              final RandomPasswordGenerator random =
-                  RandomPasswordGenerator();
-              String randomId = random.randomPassword(
-                passwordLength: 20,
-                specialChar: false,
-                letters: true,
-                numbers: true,
-                uppercase: true,
-              );
-              bookingDate =
-                  "${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}";
-              bookingTime =
-                  "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
-              String bookingId="$randomId${DateTime.now().year}${DateTime.now().month}${DateTime.now().day}${DateTime.now().hour}${DateTime.now().minute}${DateTime.now().second}";
-              qrData =
-                  "Ahemdabad-$bookingId-${_controller2.dropDownValue!.value}-${_controller3.dropDownValue!.value}-$bookingTime-$bookingDate-$fare";
-              setState(() {
-                // await PaymentMethods();
-                // ticketView(qrData, bookingTime, bookingDate, totalFare,_controller1.dropDownValue!.value.toString(),bookingId);
-              });
-              Navigator.pop(context);
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TicketViewPage(city:selectedCity,phone:cuPhone,qrData: qrData!, source: _controller2.dropDownValue!.value, destination: _controller3.dropDownValue!.value, bookingTime: bookingTime, bookingDate: bookingDate, numberOfTickets: _controller1.dropDownValue!.value.toString(), totalFare: totalFare.toString(),bookingId: bookingId,),
-                  ));
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Text("Source and Destination both are Same !"),
-              ));
-            }
-          }
-        },
+      bottomSheet: Container(
+        color: Colors.transparent,
+        width: MediaQuery.of(context).size.width,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          child: Container(
-            height: 50,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              color: PrimaryColor,
+          child: GestureDetector(
+            onTap: () async {
+              if (_formkey.currentState!.validate()) {
+                if (_controller2.dropDownValue!.value !=
+                    _controller3.dropDownValue!.value) {
+                  await Calculate();
+                  Loading(context);
+                  final RandomPasswordGenerator random =
+                  RandomPasswordGenerator();
+                  String randomId = await random.randomPassword(
+                    passwordLength: 20,
+                    specialChar: false,
+                    letters: true,
+                    numbers: true,
+                    uppercase: true,
+                  );
+                  bookingDate =
+                  "${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}";
+                  bookingTime =
+                  "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}";
+                  bookingId="$randomId${DateTime.now().year}${DateTime.now().month}${DateTime.now().day}${DateTime.now().hour}${DateTime.now().minute}${DateTime.now().second}";
+                  qrData =
+                  "Ahemdabad-$bookingId-${_controller2.dropDownValue!.value}-${_controller3.dropDownValue!.value}-$bookingTime-$bookingDate-$fare";
+                  setState(() {});
+                    Navigator.pop(context);
+                  // await RazorpayMethod();
+                  //   ticketView(qrData, bookingTime, bookingDate, totalFare,_controller1.dropDownValue!.value.toString(),bookingId);
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TicketViewPage(city:selectedCity,phone:cuPhone,qrData: qrData!, source: _controller2.dropDownValue!.value, destination: _controller3.dropDownValue!.value, bookingTime: bookingTime, bookingDate: bookingDate, numberOfTickets: _controller1.dropDownValue!.value.toString(), totalFare: totalFare.toString(),bookingId: bookingId),
+                      ));
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text("Source and Destination both are Same !"),
+                  ));
+                }
+              }
+            },
+            child: Container(
+              height: 50,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                color: PrimaryColor,
+              ),
+              child:Center(
+                  child: !flag ? const Text("Next",
+                      style: TextStyle(fontSize: 20, color: Colors.white)):Text("Pay ₹ $totalFare",
+                      style: const TextStyle(fontSize: 20, color: Colors.white))),
             ),
-            child: Center(
-                child: !flag ? const Text("Next",
-                    style: TextStyle(fontSize: 20, color: Colors.white)):Text("Pay ₹ $totalFare",
-                    style: const TextStyle(fontSize: 20, color: Colors.white))),
           ),
         ),
       ),
@@ -173,22 +214,25 @@ class _TicketBookingPageState extends State<TicketBookingPage> {
     return Column(
       children: [
         DropDownTextField(
-          isEnabled: condition,
-          clearOption: false,
+          onChanged: (value) async {
+            await Calculate();
+          },
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Please select an option';
             }
             return null;
           },
-          onChanged: (value) async {
-            await Calculate();
-          },
+          isEnabled: condition,
+          clearOption: false,
           controller: controller,
           dropDownItemCount: 5,
           dropDownList: items,
           dropdownRadius: 0,
           textFieldDecoration: InputDecoration(
+            labelStyle: const TextStyle(
+                color: Colors.black87
+            ),
             labelText: lable,
             disabledBorder: const OutlineInputBorder(
               borderSide: BorderSide(
@@ -201,9 +245,15 @@ class _TicketBookingPageState extends State<TicketBookingPage> {
                 color: PrimaryColor,
               ),
             ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                width: 2,
+                color: PrimaryColor,
+              ),
+            ),
             errorBorder: const OutlineInputBorder(
               borderSide: BorderSide(
-                color: Colors.red,
+                color: Colors.grey,
               ),
             ),
             enabledBorder: const OutlineInputBorder(
@@ -299,13 +349,6 @@ class _TicketBookingPageState extends State<TicketBookingPage> {
                     'Ticket/Ahmedabad/$id');
 
                 storageRef.putData(pngBytes).whenComplete(() async {
-                  final ticketUrl = await FirebaseStorage.instance
-                      .ref()
-                      .child(
-                      'Ticket/Ahmedabad/$id')
-                      .getDownloadURL();
-                  print("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT");
-                  print(ticketUrl);
                 });
                 return showDialog(
                     barrierDismissible: false,
@@ -401,7 +444,7 @@ class _TicketBookingPageState extends State<TicketBookingPage> {
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
-                                UPIPaymentPage(amount: totalFare.toString()),
+                                UPIPaymentPage(amount: totalFare.toString(),city:selectedCity,phone:cuPhone,qrData: qrData!, source: _controller2.dropDownValue!.value, destination: _controller3.dropDownValue!.value, bookingTime: bookingTime, bookingDate: bookingDate, numberOfTickets: _controller1.dropDownValue!.value.toString(), totalFare: totalFare.toString(), bookingId: bookingId.toString(),),
                           ));
                     },
                     child: Container(
@@ -444,5 +487,20 @@ class _TicketBookingPageState extends State<TicketBookingPage> {
       ),
     );
   }
+RazorpayMethod(){
+  var options = {
+    'key': 'rzp_test_864jf5OoKDSQuT',
+    'amount': (totalFare*100).toString(), //in the smallest currency sub-unit.
+    'name': 'Metro Mate.',
+    'currency':'INR',
+    'description': '${selectedCity} Metro Ticket',
+    'timeout': 120, // in seconds
+    'prefill': {
+      'contact': '$cuPhone',
+      'email': '${cuFName}${cuLName}@gmail.com'
+    },
 
+  };
+  _razorpay.open(options);
+}
 }

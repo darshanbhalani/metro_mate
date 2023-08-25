@@ -54,21 +54,6 @@ class _HomePageState extends State<HomePage> {
               Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Container(
-                  //   color: PrimaryColor,
-                  //   child: ListTile(
-                  //     leading: InkWell(
-                  //       onTap: (){
-                  //         // Navigator.push(
-                  //         //     context,
-                  //         //     MaterialPageRoute(
-                  //         //       builder: (context) => DrawerPage(),
-                  //         //     ));
-                  //       },
-                  //         child: Icon(Icons.menu)),
-                  //     title: Text("Metro Mate",style: TextStyle(fontSize:30,fontWeight: FontWeight.bold,color: Colors.white)),
-                  //   ),
-                  // ),
                   Container(
                     height: 180,
                     width: MediaQuery
@@ -143,7 +128,7 @@ class _HomePageState extends State<HomePage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    InkWell(
+                    GestureDetector(
                       onTap: () {
                         Navigator.push(
                             context,
@@ -169,7 +154,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
-                    InkWell(
+                    GestureDetector(
                       onTap: () {
                         Navigator.push(
                             context,
@@ -196,7 +181,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
-                    InkWell(
+                    GestureDetector(
                       onTap: () {
                         Navigator.push(
                             context,
@@ -230,7 +215,7 @@ class _HomePageState extends State<HomePage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    InkWell(
+                    GestureDetector(
                       onTap: () {
                         Navigator.push(
                             context,
@@ -257,7 +242,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
-                    InkWell(
+                    GestureDetector(
                       onTap: () {
                         Navigator.push(
                             context,
@@ -287,7 +272,7 @@ class _HomePageState extends State<HomePage> {
 
                       ),
                     ),
-                    InkWell(
+                    GestureDetector(
                       onTap: () {
                         Navigator.push(
                             context,

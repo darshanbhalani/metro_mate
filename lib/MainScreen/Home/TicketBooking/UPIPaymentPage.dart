@@ -1,9 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:metro_mate/MainScreen/Home/TicketBooking/TicketViewPage.dart';
+import 'package:metro_mate/Variables.dart';
 import 'package:upi_india/upi_india.dart';
 
 class UPIPaymentPage extends StatefulWidget {
   final String amount;
-  const UPIPaymentPage({super.key,required this.amount});
+  final String city;
+  final String phone;
+  final String qrData;
+  final String source;
+  final String destination;
+  final String bookingDate;
+  final String bookingTime;
+  final String numberOfTickets;
+  final String totalFare;
+  final String bookingId;
+  const UPIPaymentPage({super.key,required this.amount,required this.city,required this.phone,required this.qrData,required this.source,required this.destination,required this.bookingTime,required this.bookingDate,required this.numberOfTickets,required this.totalFare,required this.bookingId});
+
 
   @override
   State<UPIPaymentPage> createState() => _UPIPaymentPageState();
@@ -143,58 +156,13 @@ class _UPIPaymentPageState extends State<UPIPaymentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: PrimaryColor,
         title: Text('Available UPI Apps'),
       ),
       body: Column(
         children: <Widget>[
           Expanded(
             child: displayUpiApps(),
-          ),
-          Expanded(
-            child: FutureBuilder(
-              future: _transaction,
-              builder: (BuildContext context, AsyncSnapshot<UpiResponse> snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Text(
-                        _upiErrorHandler(snapshot.error.runtimeType),
-                        style: header,
-                      ), // Print's text message on screen
-                    );
-                  }
-
-                  // If we have data then definitely we will have UpiResponse.
-                  // It cannot be null
-                  UpiResponse _upiResponse = snapshot.data!;
-
-                  // Data in UpiResponse can be null. Check before printing
-                  String txnId = _upiResponse.transactionId ?? 'N/A';
-                  String resCode = _upiResponse.responseCode ?? 'N/A';
-                  String txnRef = _upiResponse.transactionRefId ?? 'N/A';
-                  String status = _upiResponse.status ?? 'N/A';
-                  String approvalRef = _upiResponse.approvalRefNo ?? 'N/A';
-                  _checkTxnStatus(status);
-
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        displayTransactionData('Transaction Id', txnId),
-                        displayTransactionData('Response Code', resCode),
-                        displayTransactionData('Reference Id', txnRef),
-                        displayTransactionData('Status', status.toUpperCase()),
-                        displayTransactionData('Approval No', approvalRef),
-                      ],
-                    ),
-                  );
-                } else
-                  return Center(
-                    child: Text(''),
-                  );
-              },
-            ),
           ),
         ],
       ),

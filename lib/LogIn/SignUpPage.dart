@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:metro_mate/MainScreen/Home/HomePage.dart';
 import 'package:metro_mate/Variables.dart';
 
 
@@ -88,13 +86,16 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                       Visibility(
                           visible: flag,
-                          child: Text("User Already Exists. Please try to Login !!",style: TextStyle(color: Colors.red,fontSize: 15),)),
+                          child: const Text("User Already Exists. Please try to Login !!",style: TextStyle(color: Colors.red,fontSize: 15),)),
                       Visibility(
                         visible: flag,
-                          child: SizedBox(height: 10,)),
-                      Box(context, "First Name", controller1),
-                      Box(context, "Last Name", controller2),
-                      Box(context, "Phone No.", controller3),
+                          child: const SizedBox(height: 10,)),
+                      TFormField(
+                          context, "First Name", controller1, true, false),
+                      TFormField(
+                          context, "Last Name", controller2, true, false),
+                      TFormField(
+                          context, "Phone No.", controller3, true, false),
                       const SizedBox(
                         height: 100,
                       ),
@@ -106,84 +107,44 @@ class _SignUpPageState extends State<SignUpPage> {
           ],
         ),
       ),
-      bottomSheet: InkWell(
-        onTap: () async {
-          cuFName=controller1.text.toString();
-          cuLName=controller2.text.toString();
-          cuPhone=controller3.text.toString();
-          if(_key.currentState!.validate()){
-            Loading(context);
-            var snapShot = await fire.collection("Users").doc(controller3.text.toString()).get();
-            if(!snapShot.exists){
-              await SendOTP(context, controller3.text.toString(),true);
-            }else{
-              flag=true;
-              setState(() {
-              });
-              Navigator.pop(context);
-            }
-          }
-        },
+      bottomSheet: Container(
+        color: Colors.transparent,
+        width: MediaQuery.of(context).size.width,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          child: Container(
-            height: 50,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              color: PrimaryColor,
+          child: GestureDetector(
+            onTap: () async {
+              if (_key.currentState!.validate() && controller3.text.length == 10) {
+                cuFName=controller1.text.trim().toString().toUpperCase();
+                cuLName=controller2.text.trim().toString().toUpperCase();
+                cuPhone=controller3.text.trim().toString();
+                Loading(context);
+                var snapShot = await fire.collection("Users").doc(controller3.text.toString()).get();
+                if(!snapShot.exists){
+                  await SendOTP(context, controller3.text.toString(),true,"signup");
+                }else{
+                  flag=true;
+                  setState(() {
+                  });
+                  Navigator.pop(context);
+                }
+              }
+            },
+            child: Container(
+              height: 50,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                color: PrimaryColor,
+              ),
+              child:const Center(
+                  child: Text(
+                    "Send OTP",
+                    style: TextStyle(fontSize: 20, color: Colors.white),
+                  )),
             ),
-            child: const Center(child: Text("Submit",style: TextStyle(fontSize:20,color: Colors.white),)),
           ),
         ),
       ),
     );
   }
-
-  Box(context, String _lable, TextEditingController _controller,) {
-    return Column(
-      children: [
-        TextFormField(
-            validator: (value) {
-              if (value!.isEmpty) {
-                return "Enter $_lable";
-              }
-              else if(_lable=="Phone No." && _controller.text.length != 10){
-                return "Enter Valid Phone No.";
-              }
-              return null;
-            },
-            controller: _controller,
-            keyboardType: _lable=="Phone No." ? TextInputType.number:TextInputType.text,
-            decoration: InputDecoration(
-              disabledBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey),
-              ),
-              border: const OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.teal,
-                  )),
-              focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color:PrimaryColor,
-                    width: 2,
-                  )),
-              enabledBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey),
-              ),
-              labelText: _lable,
-              labelStyle: const TextStyle(
-                fontSize: 15,
-              ),
-            ),
-            inputFormatters: _lable=="Phone No." ?
-            [
-              LengthLimitingTextInputFormatter(10),
-              FilteringTextInputFormatter.digitsOnly,
-            ]:[],
-        ),
-        const SizedBox(height: 15),
-      ],
-    );
-  }
-
 }

@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:metro_mate/MainScreen/Home/Drawer/DrawerPage.dart';
 import 'package:metro_mate/Variables.dart';
 
 class BookingPage extends StatefulWidget {
@@ -20,7 +21,7 @@ class _BookingPageState extends State<BookingPage> {
         backgroundColor: PrimaryColor,
         title: const Text("Bookings History"),
       ),
-
+      drawer: DrawerPage(),
       body: StreamBuilder(
         stream: fire.collection("Tickets").where("Phone No",isEqualTo:cuPhone).orderBy("DateTime", descending: true).snapshots(),
         builder: (context,AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -49,24 +50,22 @@ class _BookingPageState extends State<BookingPage> {
                          Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Flexible(
-                                  child: RichText(
-                                    text: TextSpan(
-                                      style: const TextStyle(color: Colors.black, fontSize: 36),
-                                      children: <TextSpan>[
-                                        TextSpan(text: snap["Source"], style: const TextStyle(fontWeight: FontWeight.bold)),
-                                        const TextSpan(text: " to "),
-                                        TextSpan(text: snap["Destination"],style: const TextStyle(fontWeight: FontWeight.bold)),
-                                      ],
-                                    ),
-                                    textScaleFactor: 0.5,
+                            Flexible(
+                              child: Container(
+                                child: RichText(
+                                  maxLines: 1,
+                                  overflow: TextOverflow.clip,
+                                  text: TextSpan(
+                                    style: const TextStyle(color: Colors.black, fontSize: 36),
+                                    children: <TextSpan>[
+                                      TextSpan(text: snap["Source"], style: const TextStyle(fontWeight: FontWeight.bold)),
+                                      const TextSpan(text: " to "),
+                                      TextSpan(text: snap["Destination"],style: const TextStyle(fontWeight: FontWeight.bold)),
+                                    ],
                                   ),
+                                  textScaleFactor: 0.5,
                                 ),
-                              ],
+                              ),
                             ),
                             Row(
                               children: [
@@ -120,7 +119,7 @@ class _BookingPageState extends State<BookingPage> {
   Ticket(link){
     return showDialog(context: context, builder: (context){
       return AlertDialog(
-        content: Image.network(link)
+        content: Image.network(link,fit: BoxFit.cover,)
         );
     });
   }

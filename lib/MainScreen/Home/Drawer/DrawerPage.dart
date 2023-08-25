@@ -12,6 +12,7 @@ class DrawerPage extends StatefulWidget {
   State<DrawerPage> createState() => _DrawerPageState();
 }
 
+
 class _DrawerPageState extends State<DrawerPage> {
   @override
   Widget build(BuildContext context) {
@@ -19,14 +20,22 @@ class _DrawerPageState extends State<DrawerPage> {
       child: Column(
         children: [
           Container(
-            color: SecondryColor,
+            color: PrimaryColor,
             height: 180,
-            child: const Padding(
+            child:Padding(
               padding: EdgeInsets.all(10.0),
               child: Row(
                 children: [
                   CircleAvatar(
-                    radius: 45,
+                    child: Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(100),
+                          image: DecorationImage(
+                              image: AssetImage("assets/images/UserProfile.jpg")
+                          )
+                      ),
+                    ),
+                    radius: 50,
                   ),
                   SizedBox(
                     width: 15,
@@ -35,7 +44,7 @@ class _DrawerPageState extends State<DrawerPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("Darshan Bhalani",style: TextStyle(
+                        Text("$cuFName $cuLName",style: TextStyle(
                           fontSize: 25
                         ),)
                       ],

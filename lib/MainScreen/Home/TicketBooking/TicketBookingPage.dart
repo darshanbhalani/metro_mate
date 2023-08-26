@@ -128,13 +128,13 @@ class _TicketBookingPageState extends State<TicketBookingPage> {
                   "Ahemdabad-$bookingId-${_controller2.dropDownValue!.value}-${_controller3.dropDownValue!.value}-$bookingTime-$bookingDate-$fare";
                   setState(() {});
                     Navigator.pop(context);
-                  // await RazorpayMethod();
+                  await RazorpayMethod();
                   //   ticketView(qrData, bookingTime, bookingDate, totalFare,_controller1.dropDownValue!.value.toString(),bookingId);
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TicketViewPage(city:selectedCity,phone:cuPhone,qrData: qrData!, source: _controller2.dropDownValue!.value, destination: _controller3.dropDownValue!.value, bookingTime: bookingTime, bookingDate: bookingDate, numberOfTickets: _controller1.dropDownValue!.value.toString(), totalFare: totalFare.toString(),bookingId: bookingId),
-                      ));
+                  // Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //       builder: (context) => TicketViewPage(city:selectedCity,phone:cuPhone,qrData: qrData!, source: _controller2.dropDownValue!.value, destination: _controller3.dropDownValue!.value, bookingTime: bookingTime, bookingDate: bookingDate, numberOfTickets: _controller1.dropDownValue!.value.toString(), totalFare: totalFare.toString(),bookingId: bookingId),
+                  //     ));
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                     content: Text("Source and Destination both are Same !"),
@@ -160,54 +160,56 @@ class _TicketBookingPageState extends State<TicketBookingPage> {
   }
 
   Calculate() async{
-    int? x;
-    int? y;
-    if (_controller1.dropDownValue!.value != null &&
-        _controller2.dropDownValue!.value != null &&
-        _controller3.dropDownValue!.value != null) {
-      if (_controller2.dropDownValue!.value !=
-          _controller3.dropDownValue!.value) {
-        Loading(context);
-        final snapshot1 =
-        await ref.ref("Fare/$selectedCity/locations").orderByKey().get();
-        List<dynamic> values1 = snapshot1.value as List<dynamic>;
-        List<Object> list1 = List<Object>.from(values1);
-        final snapshot2 =
-        await ref.ref("Fare/$selectedCity/distances").orderByKey().get();
-        List<dynamic> values2 = snapshot2.value as List<dynamic>;
-        List<Object> list2 = List<Object>.from(values2);
-        fareMatrix.add(list1);
-        for (var x in list2) {
-          fareMatrix.add(x);
-        }
-        for (int i = 0; i < fareMatrix[0].length; i++) {
-          if (fareMatrix[0][i] == _controller2.dropDownValue!.value.toString()) {
-            x = i;
-            break;
-          }
-        }
-        for (int i = 0; i < fareMatrix.length; i++) {
-          if (fareMatrix[i][0] == _controller3.dropDownValue!.value) {
-            y = i;
-            break;
-          }
-        }
-        fare = int.parse(fareMatrix[x!][y!]);
-        totalFare = fare * (_controller1.dropDownValue!.value as int);
-        setState(() {
-          flag = true;
-        });
-        Navigator.pop(context);
-      } else {
-        fare = 0;
-        totalFare = 0;
-        setState(() {});
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("Source and Destination both are Same !"),
-        ));
-      }
+     int x=0;
+     int y=0;
+     if (_controller1.dropDownValue!.value != null &&
+         _controller2.dropDownValue!.value != null &&
+         _controller3.dropDownValue!.value != null) {
+       if (_controller2.dropDownValue!.value !=
+           _controller3.dropDownValue!.value) {
+         Loading(context);
+         final snapshot1 =
+         await ref.ref("Fare/$selectedCity/locations").orderByKey().get();
+         List<dynamic> values1 = snapshot1.value as List<dynamic>;
+         List<Object> list1 = List<Object>.from(values1);
+         final snapshot2 =
+         await ref.ref("Fare/$selectedCity/distances").orderByKey().get();
+         List<dynamic> values2 = snapshot2.value as List<dynamic>;
+         List<Object> list2 = List<Object>.from(values2);
+         fareMatrix.add(list1);
+         for (var x in list2) {
+           fareMatrix.add(x);
+         }
+         for (int i = 0; i < fareMatrix[0].length; i++) {
+           if (fareMatrix[0][i] == _controller2.dropDownValue!.value.toString()) {
+             x = i;
+             break;
+           }
+         }
+
+         for (int i = 0; i < fareMatrix.length; i++) {
+           if (fareMatrix[i][0] == _controller3.dropDownValue!.value) {
+             y = i;
+             break;
+           }
+         }
+         fare = int.parse(fareMatrix[x][y]);
+         totalFare = fare * (_controller1.dropDownValue!.value as int);
+         setState(() {
+           flag = true;
+         });
+
+         Navigator.pop(context);
+       } else {
+         fare = 0;
+         totalFare = 0;
+         setState(() {});
+         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+           content: Text("Source and Destination both are Same !"),
+         ));
+       }
+     }
     }
-  }
 
   DropField(context, String lable, List<DropDownValueModel> items,
       SingleValueDropDownController controller, bool condition) {

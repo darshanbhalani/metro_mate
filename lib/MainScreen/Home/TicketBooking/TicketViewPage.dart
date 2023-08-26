@@ -61,7 +61,7 @@ class _TicketViewPageState extends State<TicketViewPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text("Ahemdabad Metro",style: TextStyle(fontSize:20,fontWeight: FontWeight.bold),),
+                     Text("$selectedCity Metro",style: const TextStyle(fontSize:20,fontWeight: FontWeight.bold),),
                     QrImageView(
                       data: widget.qrData,
                       version: QrVersions.auto,

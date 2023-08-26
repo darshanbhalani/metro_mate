@@ -181,14 +181,26 @@ SendOTP(context, String pnone,bool flag,String lable) async {
               ));
         }
       },
-      verificationCompleted: (PhoneAuthCredential phoneAuthCredential) {},
-      codeAutoRetrievalTimeout: (String verificationId) {},
-      verificationFailed: (FirebaseAuthException error) {},
+      verificationCompleted: (PhoneAuthCredential phoneAuthCredential) {
+
+      },
+      codeAutoRetrievalTimeout: (String verificationId) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Oops! Your phone Number is blocked because of suspicious activity try again after 24 hours."),
+        ));
+      },
+      verificationFailed: (FirebaseAuthException error) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Oops! Your phone Number is blocked because of suspicious activity try again after 24 hours."),
+        ));
+      },
     );
-  }catch(e){
+  } on FirebaseException catch(e){
     Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text("Oops! Somthing went wrong please try again later"),
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(e.code),
     ));
   }
 }
@@ -199,7 +211,7 @@ verifyOTP(context, verificationId, String code,String phone,lable) async {
     PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: verificationId, smsCode: code);
     UserCredential userCredential = await auth.signInWithCredential(credential);
     if (userCredential.user != null) {
-      getUserData(phone);
+      await getUserData(phone);
       if(lable=="login"){
         await getUserData(phone);
       }
@@ -210,7 +222,7 @@ verifyOTP(context, verificationId, String code,String phone,lable) async {
         Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => SelectCityPage(currentCity: ""),
+              builder: (context) => const SelectCityPage(currentCity: ""),
             ));
     } else {
       Navigator.pop(context);
@@ -229,7 +241,6 @@ verifyOTP(context, verificationId, String code,String phone,lable) async {
         content: Text("Oops! OTP timed out please resend OTP"),
       ));}
     else{
-      print(e.code);
       ScaffoldMessenger.of(context).showSnackBar( SnackBar(
         content: Text("${e.message}"),
       ));
@@ -250,6 +261,7 @@ Future signUp(String fname, String lname, String phone) async {
 Temp() {}
 
 Future getUserData(String phone) async {
+  phone=phone.replaceAll("+91", "").replaceAll(" ", "");
   fire.collection("Users").doc(phone).get().then((value) {
     cuFName = value["First Name"];
     cuLName = value["Last Name"];
@@ -261,19 +273,29 @@ Future getUserData(String phone) async {
 }
 
 Future getLocalDetails() async {
+  // await buildDataBase("Nagpur");
+  print("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ");
   SharedPreferences sp = await SharedPreferences.getInstance();
   cuFName = sp.getString("cuFName") ?? cuFName;
   cuLName = sp.getString("cuLName") ?? cuLName;
   cuPhone = sp.getString("cuPhone") ?? cuPhone;
   cuPhoto = sp.getString("cuPhoto") ?? cuPhoto;
   selectedCity = sp.getString("selectedCity") ?? selectedCity;
+  print(cuFName);
+  print(cuLName);
+  print(cuPhone);
+  print(cuPhoto);
+  print(selectedCity);
+  print("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ");
   String? jsonList = sp.getString('metroStationsListJSON');
   metroStationsList = json.decode(jsonList!).map<DropDownValueModel>((item) => DropDownValueModel.fromJson(item)).toList();
   stationList = metroStationsList.map((item) => item.value).toList();
+
   final dataJson = sp.getString('metroData');
   final dataX = jsonDecode(dataJson!);
+  print(dataX);
   metroData = List<List<Object>>.from(dataX.map((list) => List<Object>.from(list)));
-
+  print("FFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
 }
 
 Future setLocalDetails(fname,lname,phone,photo,city) async {
@@ -302,7 +324,14 @@ Map<String, Color> lineColor = {
   "Orange": Colors.orange
 };
 
-Future buildDataBase(String city) async{
+Map<String, double> StationPosition = {
+  'AhmedabadX': 23.0375565601606,
+  'AhmedabadY': 72.56700922564633,
+  'NagpurX': 21.1412657,
+  'NagpurY': 79.0816802
+};
+
+Future buildDataBase(String cuFName,String cuLName,String cuPhone,String city) async{
   metroStationsList = [];
   metroGraph = {};
   stationList=[];
@@ -326,13 +355,17 @@ Future buildDataBase(String city) async{
     temp1.add(temp["Y"]);
     temp1.add(temp["Line"]);
     temp1.add(temp["Terminal"]);
-    temp1.add(temp["Connected Line"]);
-    temp1.add(temp["Connected Stations"]);
+    // temp1.add(temp["Connected Line"]);
+    // temp1.add(temp["Connected Stations"]);
     metroData.add(temp1);
   }
 
   for(int i=0;i<metroData.length;i++){
     metroData.sort((a, b) => a[1].compareTo(b[1]));
+  }
+
+  for(var i in metroData){
+    print(i);
   }
 
   for(int i=0;i<metroData.length;i++) {
@@ -342,11 +375,11 @@ Future buildDataBase(String city) async{
   }
   // stationList = metroStationsList.map((item) => item.value).toList();
 
-  await setLocalDetails(cuFName, cuLName, cuPhone, cuPhone, selectedCity);
+  await setLocalDetails(cuFName, cuLName, cuPhone, cuPhone, city);
 }
 
-openGoogleMap(destination) async {
-  final url = 'https://www.google.com/maps/dir/?api=1&destination=$destination metro Station';
+openGoogleMap(String destination) async {
+  final url = 'https://www.google.com/maps/dir/?api=1&destination=${destination.replaceAll(" ", "_")} metro Station';
   // final url = 'https://www.google.com/maps/dir/?api=1&destination=$X,$Y';
   if (await canLaunch(url)) {
     await launch(url);

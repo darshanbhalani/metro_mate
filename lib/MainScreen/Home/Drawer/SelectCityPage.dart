@@ -72,51 +72,57 @@ class _SelectCityPageState extends State<SelectCityPage> {
           },
         ),
       ),
-      bottomSheet: InkWell(
-        onTap: () async {
-          Loading(context);
-          if (temp != "") {
-            if (temp == "Ahmedabad" || temp == "Nagpur") {
-              if (temp != widget.currentCity) {
-                selectedCity = temp;
-                setState(() {});
-                await buildDataBase(selectedCity);
-                await setLocalDetails(
-                    cuFName, cuLName, cuPhone, cuPhone, selectedCity);
-              }
-              Navigator.pop(context);
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => HomePage(),
-                  ),
-                  (route) => false);
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => HomePage()));
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Text("Sorry !! Currently Metro Mate is not available for selected city"),
-              ));
-            }
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text("Please selected city"),
-            ));
-          }
-        },
+      bottomSheet: Container(
+        color: Colors.transparent,
+        width: MediaQuery.of(context).size.width,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          child: Container(
-            height: 50,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              color: PrimaryColor,
+          child: GestureDetector(
+            onTap: () async {
+              Loading(context);
+              if (temp != "") {
+                if (temp == "Ahmedabad" || temp == "Nagpur") {
+                  if (temp != widget.currentCity) {
+                    selectedCity = temp;
+                    setState(() {});
+                    await buildDataBase(cuFName,cuLName,cuPhone,selectedCity);
+                    await setLocalDetails(
+                        cuFName, cuLName, cuPhone, cuPhone, selectedCity);
+                  }
+                  Navigator.pop(context);
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HomePage(),
+                      ),
+                          (route) => false);
+                  Navigator.push(
+                      context, MaterialPageRoute(builder: (context) => HomePage()));
+                } else {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text("Sorry !! Currently Metro Mate is not available for selected city"),
+                  ));
+                }
+              } else {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text("Please selected city"),
+                ));
+              }
+            },
+            child: Container(
+              height: 50,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                color: PrimaryColor,
+              ),
+              child:const Center(
+                  child: Text(
+                    "Next",
+                    style: TextStyle(fontSize: 20, color: Colors.white),
+                  )),
             ),
-            child: Center(
-                child: Text(
-              "Submit",
-              style: TextStyle(fontSize: 20, color: Colors.white),
-            )),
           ),
         ),
       ),

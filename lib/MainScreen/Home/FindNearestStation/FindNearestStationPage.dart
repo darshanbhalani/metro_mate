@@ -42,9 +42,9 @@ class _FindNearestStationPageState extends State<FindNearestStationPage> {
           getData();
           setState(() {});
         },
-        initialCameraPosition: const CameraPosition(
+        initialCameraPosition: CameraPosition(
           target: LatLng(
-              23.0375565601606,72.56700922564633), // Initial map location
+              StationPosition["${selectedCity}X"]!,StationPosition["${selectedCity}Y"]!), // Initial map location
           zoom: 12.0,
         ),
         minMaxZoomPreference: const MinMaxZoomPreference(5.0, 20.0),

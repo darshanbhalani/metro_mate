@@ -38,7 +38,7 @@ class _BookingPageState extends State<BookingPage> {
                   height: 200,
                   width: MediaQuery.of(context).size.width,
                   decoration: BoxDecoration(
-                      color: Colors.grey[200],
+                      color: BGColor,
                       borderRadius: BorderRadius.circular(25)
                   ),
                   child: Padding(
@@ -47,7 +47,8 @@ class _BookingPageState extends State<BookingPage> {
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                         Row(
+                        Flexible(child: Text(snap["Metro"]+" Metro",style: TextStyle(fontWeight: FontWeight.bold),)),
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Flexible(
@@ -90,7 +91,7 @@ class _BookingPageState extends State<BookingPage> {
                                 Text("Booking Date :- ${snap["Booking Date"]}"),
                               ],
                             ),
-                            InkWell(
+                            GestureDetector(
                               onTap: (){
                                 Ticket(snap["QR Ticket"]);
                               },
@@ -98,7 +99,7 @@ class _BookingPageState extends State<BookingPage> {
                                 height: 100,
                                 width: 100,
                                 decoration: BoxDecoration(
-                                    color: Colors.black,
+                                    color: Colors.black87,
                                     borderRadius: BorderRadius.circular(25)
                                 ),
                                 child: const Icon(Icons.qr_code,color: Colors.white,size: 50,),

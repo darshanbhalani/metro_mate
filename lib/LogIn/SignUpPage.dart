@@ -38,8 +38,8 @@ class _SignUpPageState extends State<SignUpPage> {
               child: Container(
                 height: 400,
                 width: 400,
-                decoration: const BoxDecoration(
-                    color: Color.fromARGB(75, 255, 114, 94),
+                decoration: BoxDecoration(
+                    color: SecondryColor,
                     shape: BoxShape.circle),
               ),
             ),
@@ -49,8 +49,8 @@ class _SignUpPageState extends State<SignUpPage> {
               child: Container(
                 height: 150,
                 width: 150,
-                decoration: const BoxDecoration(
-                    color: Color.fromARGB(75, 255, 114, 94),
+                decoration: BoxDecoration(
+                    color: SecondryColor,
                     shape: BoxShape.circle),
               ),
             ),
@@ -60,8 +60,8 @@ class _SignUpPageState extends State<SignUpPage> {
               child: Container(
                 height: 150,
                 width: 150,
-                decoration: const BoxDecoration(
-                    color: Color.fromARGB(75, 255, 114, 94),
+                decoration: BoxDecoration(
+                    color: SecondryColor,
                     shape: BoxShape.circle),
               ),
             ),
@@ -79,6 +79,8 @@ class _SignUpPageState extends State<SignUpPage> {
                             image: DecorationImage(
                                 image: AssetImage("assets/images/SignUp.png"))),
                       ),
+                      Text("Sign Up",style: TextStyle(fontWeight: FontWeight.bold,color: PrimaryColor,fontSize: 28)),
+                      SizedBox(height: 5,),
                       const Text("We need some information about you"),
                       const Text("before getting started !"),
                       const SizedBox(

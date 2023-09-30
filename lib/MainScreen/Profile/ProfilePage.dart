@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:metro_mate/LogIn/MainPage.dart';
 import 'package:metro_mate/MainScreen/Home/Drawer/DrawerPage.dart';
 import 'package:metro_mate/Variables.dart';
+import 'package:screenshot/screenshot.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -11,6 +12,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,56 +23,63 @@ class _ProfilePageState extends State<ProfilePage> {
       drawer: DrawerPage(),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        child: Column(
-          children: [
-            CircleAvatar(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(100),
-                  image: DecorationImage(
-                    image: AssetImage("assets/images/UserProfile.jpg")
+        child: Container(
+          color: Colors.white,
+          child: Column(
+            children: [
+              CircleAvatar(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(100),
+                    image: DecorationImage(
+                      image: AssetImage("assets/images/UserProfile.jpg")
+                    ),
                   ),
                 ),
+                radius: 80,
               ),
-              radius: 80,
-            ),
-            const SizedBox(width: 15),
-            ShowField("Name", "$cuFName $cuLName", false),
-            ShowField("Phone No", cuPhone, false),
-            const SizedBox(
-              height: 20,
-            ),
-            GestureDetector(
-              onTap: () {
-                logOut(context);
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(6),
-                  color: PrimaryColor,
-                ),
-                child: const Padding(
-                  padding: EdgeInsets.all(10.0),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.logout, color: Colors.white),
-                      SizedBox(width: 5),
-                      Text(
-                        "LogOut",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ],
+              const SizedBox(width: 15),
+              ShowField("Name", "$cuFName $cuLName", false),
+              ShowField("Phone No", cuPhone, false),
+              const SizedBox(
+                height: 20,
+              ),
+              GestureDetector(
+                onTap: () async{
+                  logOut(context);
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(6),
+                    color: PrimaryColor,
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.all(10.0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.logout, color: Colors.white),
+                        SizedBox(width: 5),
+                        Text(
+                          "LogOut",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            )
-          ],
+              )
+            ],
+          ),
         ),
       ),
     );
   }
 }
+
+
+
+
 
 logOut(context) {
   return showDialog(context: context, builder: (context) => AlertDialog(

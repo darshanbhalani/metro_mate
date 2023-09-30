@@ -28,8 +28,8 @@ class _MainPageState extends State<MainPage> {
             child: Container(
               height: 300,
               width: 300,
-              decoration: const BoxDecoration(
-                  color: Color.fromARGB(75, 255, 114, 94),
+              decoration: BoxDecoration(
+                  color: SecondryColor,
                   shape: BoxShape.circle
               ),
             ),
@@ -40,8 +40,8 @@ class _MainPageState extends State<MainPage> {
             child: Container(
               height: 150,
               width: 150,
-              decoration: const BoxDecoration(
-                  color: Color.fromARGB(75, 255, 114, 94),
+              decoration:  BoxDecoration(
+                  color: SecondryColor,
                   shape: BoxShape.circle
               ),
             ),
@@ -52,8 +52,8 @@ class _MainPageState extends State<MainPage> {
             child: Container(
               height: 150,
               width: 150,
-              decoration: const BoxDecoration(
-                  color: Color.fromARGB(75, 255, 114, 94),
+              decoration: BoxDecoration(
+                  color: SecondryColor,
                   shape: BoxShape.circle
               ),
             ),
@@ -64,8 +64,8 @@ class _MainPageState extends State<MainPage> {
             child: Container(
               height: 150,
               width: 150,
-              decoration: const BoxDecoration(
-                  color: Color.fromARGB(75, 255, 114, 94),
+              decoration:  BoxDecoration(
+                  color: SecondryColor,
                   shape: BoxShape.circle
               ),
             ),

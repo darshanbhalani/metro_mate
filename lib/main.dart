@@ -1,6 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:metro_mate/LogIn/MainPage.dart';
 import 'package:metro_mate/LogIn/SplashScreenPage.dart';
 import 'package:metro_mate/firebase_options.dart';
 

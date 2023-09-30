@@ -23,7 +23,7 @@ class _FAQandSupportPageState extends State<FAQandSupportPage> {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              InkWell(
+              GestureDetector(
                 onTap: (){
                   if(flag!=index){
                     flag=index;

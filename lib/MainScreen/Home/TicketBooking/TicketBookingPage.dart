@@ -10,6 +10,7 @@ import 'package:metro_mate/Variables.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:random_password_generator/random_password_generator.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TicketBookingPage extends StatefulWidget {
   const TicketBookingPage({Key? key}) : super(key: key);
@@ -33,10 +34,13 @@ class _TicketBookingPageState extends State<TicketBookingPage> {
   String bookingDate = "";
   late Razorpay _razorpay;
   String bookingId="";
+  bool wallet=true;
+  double? cureentBalance;
   // final _razorpay = Razorpay();
 
   @override
   void initState() {
+    fatchCurrntBalance();
     _razorpay = Razorpay();
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
@@ -50,8 +54,30 @@ class _TicketBookingPageState extends State<TicketBookingPage> {
     _razorpay.clear();
     super.dispose();
   }
+  @override
+  void didChangeDependencies() {
+    fatchCurrntBalance();
+    super.didChangeDependencies();
+  }
 
-  void _handlePaymentSuccess(PaymentSuccessResponse response) {
+  fatchCurrntBalance(){
+    fire.collection('Users').doc(cuPhone).get().then((value) {
+      cureentBalance=double.parse(value["Photo"]);
+    }).whenComplete(() async {
+      SharedPreferences sp = await SharedPreferences.getInstance();
+      sp.setString("cuPhoto", cureentBalance.toString());
+      setState(() {
+      });
+    });
+  }
+
+  Future<void> _handlePaymentSuccess(PaymentSuccessResponse response) async {
+    if(wallet){
+      await fire.collection('Users').doc(cuPhone).update(
+          {
+            'Photo': (0.0).toString()
+          });
+    }
     Navigator.push(
         context,
         MaterialPageRoute(
@@ -94,6 +120,16 @@ class _TicketBookingPageState extends State<TicketBookingPage> {
                 padding: const EdgeInsets.all(8.0),
                 child: Text("Total Payable Amount :- $totalFare"),
               ),
+              CheckboxListTile(
+                title: Text("Use Wallet Balance ( ₹ ${cureentBalance ?? 0.0})"),
+                value: wallet,
+                onChanged: (newValue) {
+                  setState(() {
+                    wallet = !wallet;
+                  });
+                },
+                controlAffinity: ListTileControlAffinity.leading,  //  <-- leading Checkbox
+              )
             ],
           ),
         ),
@@ -128,12 +164,27 @@ class _TicketBookingPageState extends State<TicketBookingPage> {
                   "Ahemdabad-$bookingId-${_controller2.dropDownValue!.value}-${_controller3.dropDownValue!.value}-$bookingTime-$bookingDate-$fare";
                   setState(() {});
                     Navigator.pop(context);
-                  await RazorpayMethod();
+
+                      if(wallet && (cureentBalance! ?? 0.0) >= totalFare){
+                        await fire.collection('Users').doc(cuPhone).update(
+                            {
+                              'Photo': (cureentBalance! - totalFare).toString()
+                            });
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TicketViewPage(city:selectedCity,phone:cuPhone,qrData: qrData!, source: _controller2.dropDownValue!.value, destination: _controller3.dropDownValue!.value, bookingTime: bookingTime, bookingDate: bookingDate, numberOfTickets: _controller1.dropDownValue!.value.toString(), totalFare: totalFare.toString(),bookingId: bookingId),
+                            ));
+                      }
+                      else{
+                        await RazorpayMethod();
+                      }
+
                   //   ticketView(qrData, bookingTime, bookingDate, totalFare,_controller1.dropDownValue!.value.toString(),bookingId);
                   // Navigator.push(
                   //     context,
                   //     MaterialPageRoute(
-                  //       builder: (context) => TicketViewPage(city:selectedCity,phone:cuPhone,qrData: qrData!, source: _controller2.dropDownValue!.value, destination: _controller3.dropDownValue!.value, bookingTime: bookingTime, bookingDate: bookingDate, numberOfTickets: _controller1.dropDownValue!.value.toString(), totalFare: totalFare.toString(),bookingId: bookingId),
+                  //       builder: (context) => TicketViewPage(city:selectedCity,phone:cuPhone,qrData: qrData!, source: _controller2.dropDownValue!.value, destination: _controller3.dropDownValue!.value, bookingTime: bookingDate, bookingDate: bookingTime, numberOfTickets: _controller1.dropDownValue!.value.toString(), totalFare: totalFare.toString(),bookingId: bookingId),
                   //     ));
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -168,6 +219,7 @@ class _TicketBookingPageState extends State<TicketBookingPage> {
        if (_controller2.dropDownValue!.value !=
            _controller3.dropDownValue!.value) {
          Loading(context);
+         fatchCurrntBalance();
          final snapshot1 =
          await ref.ref("Fare/$selectedCity/locations").orderByKey().get();
          List<dynamic> values1 = snapshot1.value as List<dynamic>;
@@ -410,7 +462,7 @@ class _TicketBookingPageState extends State<TicketBookingPage> {
                       _controller1.dropDownValue!.value.toString()),
                   Box("Fare of Single Ticket", fare.toString()),
                   Box("Total Payable Amount", totalFare.toString()),
-                  InkWell(
+                  GestureDetector(
                     onTap: () {},
                     child: Container(
                       decoration: BoxDecoration(
@@ -425,7 +477,7 @@ class _TicketBookingPageState extends State<TicketBookingPage> {
                   const SizedBox(
                     height: 8,
                   ),
-                  InkWell(
+                  GestureDetector(
                     onTap: () {},
                     child: Container(
                       decoration: BoxDecoration(
@@ -440,7 +492,7 @@ class _TicketBookingPageState extends State<TicketBookingPage> {
                   const SizedBox(
                     height: 8,
                   ),
-                  InkWell(
+                  GestureDetector(
                     onTap: () {
                       Navigator.push(
                           context,
@@ -492,7 +544,7 @@ class _TicketBookingPageState extends State<TicketBookingPage> {
 RazorpayMethod(){
   var options = {
     'key': 'rzp_test_864jf5OoKDSQuT',
-    'amount': (totalFare*100).toString(), //in the smallest currency sub-unit.
+    'amount': (wallet && cureentBalance! >= 0.0) ? ((totalFare - cureentBalance!)*100).toString():(totalFare*100).toString(), //in the smallest currency sub-unit.
     'name': 'Metro Mate.',
     'currency':'INR',
     'description': '${selectedCity} Metro Ticket',

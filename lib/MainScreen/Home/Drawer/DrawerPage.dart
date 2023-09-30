@@ -4,6 +4,7 @@ import 'package:metro_mate/MainScreen/Home/Drawer/SelectCityPage.dart';
 import 'package:metro_mate/MainScreen/Home/Drawer/TermsofUsagePage.dart';
 import 'package:metro_mate/Variables.dart';
 import 'package:metro_mate/MainScreen/Home/Drawer/WalletPage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DrawerPage extends StatefulWidget {
   const DrawerPage({Key? key}) : super(key: key);
@@ -14,6 +15,28 @@ class DrawerPage extends StatefulWidget {
 
 
 class _DrawerPageState extends State<DrawerPage> {
+  double? cureentBalance;
+
+
+
+
+  fatchCurrntBalance(){
+    fire.collection('Users').doc(cuPhone).get().then((value) {
+      cureentBalance=double.parse(value["Photo"]);
+    }).whenComplete(() async{
+      SharedPreferences sp = await SharedPreferences.getInstance();
+      sp.setString("cuPhoto", cureentBalance.toString());
+      setState(() {
+      });
+    });
+  }
+
+  @override
+  void initState() {
+    fatchCurrntBalance();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -23,28 +46,28 @@ class _DrawerPageState extends State<DrawerPage> {
             color: PrimaryColor,
             height: 180,
             child:Padding(
-              padding: EdgeInsets.all(10.0),
+              padding: const EdgeInsets.all(10.0),
               child: Row(
                 children: [
                   CircleAvatar(
                     child: Container(
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(100),
-                          image: DecorationImage(
+                          image: const DecorationImage(
                               image: AssetImage("assets/images/UserProfile.jpg")
                           )
                       ),
                     ),
                     radius: 50,
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 15,
                   ),
                   Expanded(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("$cuFName $cuLName",style: TextStyle(
+                        Text("$cuFName $cuLName",style: const TextStyle(
                           fontSize: 25
                         ),)
                       ],
@@ -54,7 +77,7 @@ class _DrawerPageState extends State<DrawerPage> {
               ),
             )
           ),
-          InkWell(
+          GestureDetector(
             onTap: (){
               Navigator.push(
                   context,
@@ -62,10 +85,10 @@ class _DrawerPageState extends State<DrawerPage> {
                     builder: (context) => const WalletPage(),
                   ));
             },
-            child: const ListTile(
+            child: ListTile(
               leading: Icon(Icons.account_balance_wallet),
               title: Text("Wallet"),
-              trailing: Text("₹ 0.0"),
+              trailing: Text("₹ ${cureentBalance ?? 0.0}"),
             ),
           ),
           Box("Change City", Icons.pin_drop_outlined,SelectCityPage(currentCity: selectedCity.toString(),)),
@@ -76,7 +99,7 @@ class _DrawerPageState extends State<DrawerPage> {
     );
   }
   Box(String titile,IconData icon,nextPage){
-    return InkWell(
+    return GestureDetector(
       onTap: (){
         Navigator.push(
             context,

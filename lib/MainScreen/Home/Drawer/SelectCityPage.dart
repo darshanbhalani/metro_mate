@@ -23,7 +23,7 @@ class _SelectCityPageState extends State<SelectCityPage> {
         backgroundColor: PrimaryColor,
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+        padding: const EdgeInsets.only(left: 15,right: 15, top: 12,bottom: 80),
         child: GridView.builder(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2, // Adjust the number of columns here
@@ -34,7 +34,7 @@ class _SelectCityPageState extends State<SelectCityPage> {
           ),
           itemCount: Cities.length,
           itemBuilder: (BuildContext context, int index) {
-            return InkWell(
+            return GestureDetector(
               onTap: () {
                 flag = index;
                 temp = Cities[index];
@@ -45,17 +45,17 @@ class _SelectCityPageState extends State<SelectCityPage> {
                   decoration: BoxDecoration(
                       color: Colors.white,
                       border: Border.all(
-                          color: index == flag ? PrimaryColor : Colors.grey,
+                          color: index == flag ? BorderColor : Colors.grey,
                           width: index == flag ? 2 : 1),
                       borderRadius: BorderRadius.circular(12)),
                   child: Center(
                       child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SizedBox(
-                        height: 35,
-                      ),
-                      Image.asset("assets/images/cities/${Cities[index]}.jpg"),
+                      // SizedBox(
+                      //   height: 35,
+                      // ),
+                      // Image.asset("assets/images/cities/${Cities[index]}.jpg"),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
@@ -87,7 +87,7 @@ class _SelectCityPageState extends State<SelectCityPage> {
                     setState(() {});
                     await buildDataBase(cuFName,cuLName,cuPhone,selectedCity);
                     await setLocalDetails(
-                        cuFName, cuLName, cuPhone, cuPhone, selectedCity);
+                        cuFName, cuLName, cuPhone, cuPhoto, selectedCity);
                   }
                   Navigator.pop(context);
                   Navigator.pushAndRemoveUntil(

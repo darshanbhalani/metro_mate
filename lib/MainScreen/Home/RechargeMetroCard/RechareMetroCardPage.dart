@@ -150,17 +150,17 @@ class _RechargeMetroCardPageState extends State<RechargeMetroCardPage> {
     return showDialog(
         context: context,
         builder: (context) {
-          return const AlertDialog(
+          return AlertDialog(
               content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              InkWell(
+              GestureDetector(
                 child: ListTile(
                   leading: Icon(Icons.add),
                   title: Text("Recharge"),
                 ),
               ),
-              InkWell(
+              GestureDetector(
                 child: ListTile(
                   leading: Icon(Icons.cancel_outlined),
                   title: Text("Remove"),
@@ -193,7 +193,7 @@ class _RechargeMetroCardPageState extends State<RechargeMetroCardPage> {
                   children: [
                     Box(context, "Card Number", controller1),
                     Box(context, "Phone Number", controller2),
-                    InkWell(
+                    GestureDetector(
                       onTap: () async {
                         Loading(context);
                         if (key.currentState!.validate()) {

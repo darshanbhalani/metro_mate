@@ -51,8 +51,8 @@ class _OTPVarificationPageState extends State<OTPVarificationPage> {
             child: Container(
               height: 400,
               width: 400,
-              decoration: const BoxDecoration(
-                  color: Color.fromARGB(75, 255, 114, 94),
+              decoration:BoxDecoration(
+                  color: SecondryColor,
                   shape: BoxShape.circle),
             ),
           ),
@@ -62,8 +62,8 @@ class _OTPVarificationPageState extends State<OTPVarificationPage> {
             child: Container(
               height: 150,
               width: 150,
-              decoration: const BoxDecoration(
-                  color: Color.fromARGB(75, 255, 114, 94),
+              decoration:BoxDecoration(
+                  color: SecondryColor,
                   shape: BoxShape.circle),
             ),
           ),
@@ -73,8 +73,8 @@ class _OTPVarificationPageState extends State<OTPVarificationPage> {
             child: Container(
               height: 200,
               width: 200,
-              decoration: const BoxDecoration(
-                  color: Color.fromARGB(75, 255, 114, 94),
+              decoration:BoxDecoration(
+                  color: SecondryColor,
                   shape: BoxShape.circle),
             ),
           ),
@@ -198,7 +198,7 @@ class _OTPVarificationPageState extends State<OTPVarificationPage> {
             LengthLimitingTextInputFormatter(1),
             FilteringTextInputFormatter.digitsOnly,
           ],
-          cursorColor: const Color.fromARGB(255, 255, 114, 94),
+          cursorColor: BorderColor,
           decoration: InputDecoration(
             hintText: _hintText,
             disabledBorder: const OutlineInputBorder(
@@ -208,9 +208,9 @@ class _OTPVarificationPageState extends State<OTPVarificationPage> {
                 borderSide: BorderSide(
               color: Colors.teal,
             )),
-            focusedBorder: const OutlineInputBorder(
+            focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-              color: Color.fromARGB(255, 255, 114, 94),
+              color: BorderColor,
               width: 2,
             )),
             enabledBorder: const OutlineInputBorder(

@@ -32,8 +32,8 @@ class _LoginPageState extends State<LoginPage> {
               child: Container(
                 height: 400,
                 width: 400,
-                decoration: const BoxDecoration(
-                    color: Color.fromARGB(75, 255, 114, 94),
+                decoration: BoxDecoration(
+                    color: SecondryColor,
                     shape: BoxShape.circle),
               ),
             ),
@@ -43,8 +43,8 @@ class _LoginPageState extends State<LoginPage> {
               child: Container(
                 height: 150,
                 width: 150,
-                decoration: const BoxDecoration(
-                    color: Color.fromARGB(75, 255, 114, 94),
+                decoration: BoxDecoration(
+                    color: SecondryColor,
                     shape: BoxShape.circle),
               ),
             ),
@@ -54,8 +54,8 @@ class _LoginPageState extends State<LoginPage> {
               child: Container(
                 height: 150,
                 width: 150,
-                decoration: const BoxDecoration(
-                    color: Color.fromARGB(75, 255, 114, 94),
+                decoration: BoxDecoration(
+                    color: SecondryColor,
                     shape: BoxShape.circle),
               ),
             ),
@@ -78,13 +78,12 @@ class _LoginPageState extends State<LoginPage> {
                       const SizedBox(
                         height: 10,
                       ),
-                      const Text(
+                      Text(
                         "Phone Varification",
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
+                          style: TextStyle(fontWeight: FontWeight.bold,color: PrimaryColor,fontSize: 28)
                       ),
                       const SizedBox(
-                        height: 10,
+                        height: 5,
                       ),
                       const Text("We need to register your phone"),
                       const Text("before getting started !"),
@@ -134,7 +133,7 @@ class _LoginPageState extends State<LoginPage> {
               height: 50,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(5),
-                color: PrimaryColor,
+                color: PrimaryColor
               ),
               child:const Center(
                   child: Text(

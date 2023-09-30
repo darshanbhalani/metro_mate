@@ -258,7 +258,7 @@ Future signUp(String fname, String lname, String phone) async {
     "First Name": fname.toUpperCase(),
     "Last Name": lname.toUpperCase(),
     "Phone No": phone,
-    "Photo": 0.0
+    "Photo": (0.0).toString()
   });
 }
 

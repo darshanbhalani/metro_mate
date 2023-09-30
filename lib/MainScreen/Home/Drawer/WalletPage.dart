@@ -114,6 +114,20 @@ class _WalletPageState extends State<WalletPage> {
                       ),
                     ),
                   ),
+                  SizedBox(height: 20,),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: const Text("Note : Our high-speed wallet feature in the metro ticket booking app ensures lightning-fast transactions. Easily preload funds for instant ticket purchases, allowing commuters to skip the lines and board the metro with a simple tap, making urban travel faster and more convenient than ever.",textAlign: TextAlign.center,),
+                  ),
+                  SizedBox(height: 20,),
+                  GestureDetector(
+                    onTap: (){},
+                    child: ListTile(
+                      tileColor: BGColor,
+                      title: Text("Show Transaction History"),
+                      trailing: Icon(Icons.chevron_right),
+                    ),
+                  )
                 ],
               )
             ],

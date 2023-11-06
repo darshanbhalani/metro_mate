@@ -170,7 +170,7 @@ List Cities = [
 SendOTP(context, String pnone, bool flag, String lable) async {
   try {
     await auth.verifyPhoneNumber(
-      phoneNumber: '+91 $pnone',
+      phoneNumber: '+91$pnone',
       codeSent: (String verificationId, int? resendToken) async {
         verificationId = verificationId;
         Navigator.pop(context);
@@ -186,6 +186,7 @@ SendOTP(context, String pnone, bool flag, String lable) async {
         }
       },
       verificationCompleted: (PhoneAuthCredential phoneAuthCredential) {},
+      timeout: const Duration(minutes: 2),
       codeAutoRetrievalTimeout: (String verificationId) {
         // Navigator.pop(context);
         // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -195,9 +196,9 @@ SendOTP(context, String pnone, bool flag, String lable) async {
       },
       verificationFailed: (FirebaseAuthException error) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
-              "Oops! Your phone Number is blocked because of suspicious activity try again after 24 hours."),
+              error.code),
         ));
       },
     );

@@ -494,12 +494,12 @@ class _TicketBookingPageState extends State<TicketBookingPage> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                UPIPaymentPage(amount: totalFare.toString(),city:selectedCity,phone:cuPhone,qrData: qrData!, source: _controller2.dropDownValue!.value, destination: _controller3.dropDownValue!.value, bookingTime: bookingTime, bookingDate: bookingDate, numberOfTickets: _controller1.dropDownValue!.value.toString(), totalFare: totalFare.toString(), bookingId: bookingId.toString(),),
-                          ));
+                      // Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //       builder: (context) =>
+                      //           UPIPaymentPage(amount: totalFare.toString(),city:selectedCity,phone:cuPhone,qrData: qrData!, source: _controller2.dropDownValue!.value, destination: _controller3.dropDownValue!.value, bookingTime: bookingTime, bookingDate: bookingDate, numberOfTickets: _controller1.dropDownValue!.value.toString(), totalFare: totalFare.toString(), bookingId: bookingId.toString(),),
+                      //     ));
                     },
                     child: Container(
                       decoration: BoxDecoration(
